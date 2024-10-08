@@ -1,0 +1,78 @@
+#!/usr/bin/env node
+
+const http = require("http");
+require("dotenv").config();
+
+const app = require("../src/main");
+
+const db = require("../src/configs/db.config");
+const config = require("../src/configs/env.config/app.env");
+
+const { app_port } = config;
+
+const port = normalizePort(app_port || "8000");
+
+let server;
+
+async function run() {
+  try {
+    // Establish a connection to the database
+    await db.establishConnection();
+
+    // Create and start the HTTP server
+    server = http.createServer(app);
+
+    server.listen(port, () => {
+      console.log(`🌐 Server is listening on http://localhost:${port}/api `);
+      console.log("--".repeat(26), "\n");
+    });
+
+    server.on("error", onError);
+  } catch (error) {
+    throw error;
+  }
+}
+
+console.log("--".repeat(26));
+console.info("🚀 Starting server...");
+
+run().catch((e) => {
+  console.error("Error running the app: ", e);
+  return shutdown();
+});
+
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
+
+// Handle unhandled promise rejections
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+  shutdown();
+});
+
+function normalizePort(val) {
+  const parsedPort = parseInt(val, 10);
+  return isNaN(parsedPort) ? val : parsedPort;
+}
+
+function onError(error) {
+  if (error.syscall !== "listen") throw error;
+
+  const bind = `Port ${port}`;
+  switch (error.code) {
+    case "EACCES":
+      console.error(`${bind} requires elevated privileges`);
+      process.exit(1);
+    case "EADDRINUSE":
+      console.error(`${bind} is already in use`);
+      process.exit(1);
+    default:
+      throw error;
+  }
+}
+
+function shutdown() {
+  console.log("Gracefully shutting down");
+  if (!server) return;
+  server.close(() => process.exit(0));
+}
