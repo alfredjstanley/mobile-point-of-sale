@@ -8,7 +8,7 @@ const appRoutes = require("./routes");
 appWares(app);
 
 // Route handlers.
-app.use("/api/", appRoutes);
+app.use("/api", appRoutes);
 
 // Global error handler.
 errorHandler(app);
