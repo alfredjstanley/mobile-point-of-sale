@@ -4,7 +4,10 @@
   "description": "API server to support the Mobile Point of Sale (MPOS) application.",
   "main": "bin/www",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./bin/www",
+    "start:dev": "nodemon ./bin/www"
+    
   },
   "repository": {
     "type": "git",
