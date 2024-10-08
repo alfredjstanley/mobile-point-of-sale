@@ -84,7 +84,7 @@ function gracefulShutdown(err) {
 
 // Shutdown process for signals
 async function handleShutdown(signal) {
-  console.log(`⚠️ Received ${signal}. Closing DB connection...`);
+  console.log("⚠️ ", `Received ${signal}. Closing DB connection...`);
   try {
     await mongoose.connection.close();
     console.log("🔔 DB Connection closed due to app termination.", "\n");
