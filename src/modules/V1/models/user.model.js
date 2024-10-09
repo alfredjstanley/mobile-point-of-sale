@@ -46,7 +46,6 @@ const userSchema = new mongoose.Schema(
     },
     secretOrKey: {
       type: String,
-      unique: true,
       required: true,
     },
     status: {
@@ -58,6 +57,15 @@ const userSchema = new mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
+    toJSON: {
+      transform(_, ret) {
+        delete ret.secretOrKey;
+        delete ret.updatedAt;
+        delete ret._id;
+
+        return ret;
+      },
+    },
   }
 );
 
