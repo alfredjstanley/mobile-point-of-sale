@@ -3,6 +3,6 @@ const handler = require("../controllers/sale.controller");
 
 saleRouter.post("/", handler.createSale);
 saleRouter.get("/", handler.getAllSales);
-saleRouter.get("/sale", handler.getSaleById);
+saleRouter.get("/get", handler.getSaleById);
 
 module.exports = saleRouter;

@@ -35,7 +35,7 @@ const saleService = {
     return await Sale.find()
       .populate("customer")
       .populate("items.product")
-      .populate("createdBy", "name");
+      .populate("createdBy", "firstName lastName");
   },
 
   // Get a sale by ID
@@ -43,7 +43,7 @@ const saleService = {
     return await Sale.findById(saleId)
       .populate("customer")
       .populate("items.product")
-      .populate("createdBy", "name");
+      .populate("createdBy", "firstName lastName");
   },
 };
 
