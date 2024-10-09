@@ -60,8 +60,6 @@ const userSchema = new mongoose.Schema(
     toJSON: {
       transform(_, ret) {
         delete ret.secretOrKey;
-        delete ret.updatedAt;
-        delete ret._id;
 
         return ret;
       },

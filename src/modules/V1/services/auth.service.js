@@ -37,6 +37,30 @@ const authService = {
 
     return response;
   },
+
+  async addUser(userData) {
+    const existingUser = await User.findOne({ email: userData.email });
+    if (existingUser) throw new Error("User already exists with this email");
+
+    const hashedPassword = await bcrypt.hash(userData.email, 10);
+    userData.secretOrKey = hashedPassword;
+
+    const newUser = new User(userData);
+    await newUser.save();
+
+    return {
+      message: "User added successfully",
+      userData: newUser,
+    };
+  },
+
+  async getUserById(userId) {
+    return await User.findById(userId);
+  },
+
+  async getUsers() {
+    return await User.find();
+  },
 };
 
 module.exports = authService;

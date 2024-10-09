@@ -23,40 +23,30 @@ const authController = {
   // Handle adding a new user
   async addUser(req, res) {
     try {
-      const user = await userService.addUser(req.body);
-      res.status(201).json({ message: "User added successfully", user });
+      const responseData = await authService.addUser(req.body);
+      responseHandler.sendSuccessResponse(res, responseData);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      responseHandler.sendBadRequest(res, error.message);
     }
   },
 
   // Get user by ID
   async getUser(req, res) {
     try {
-      const user = await userService.getUserById(req.params.id);
-      res.status(200).json({ user });
+      const responseData = await authService.getUserById(req.query.id);
+      responseHandler.sendSuccessResponse(res, responseData);
     } catch (error) {
-      res.status(404).json({ error: "User not found" });
+      responseHandler.sendBadRequest(res, error.message);
     }
   },
 
-  // Update user
-  async updateUser(req, res) {
+  // Get users
+  async getUsers(req, res) {
     try {
-      const user = await userService.updateUser(req.params.id, req.body);
-      res.status(200).json({ message: "User updated", user });
+      const responseData = await authService.getUsers();
+      responseHandler.sendSuccessResponse(res, responseData);
     } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  },
-
-  // Delete user
-  async deleteUser(req, res) {
-    try {
-      await userService.deleteUser(req.params.id);
-      res.status(200).json({ message: "User deleted" });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+      responseHandler.sendBadRequest(res, error.message);
     }
   },
 };
