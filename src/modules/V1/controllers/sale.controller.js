@@ -7,12 +7,10 @@ const saleController = {
       // Include the user ID from the authenticated user
       const saleData = req.body;
       const sale = await saleService.createSale(saleData);
-      res
-        .status(201)
-        .json({
-          success: true,
-          data: { message: "Sale created successfully", sale },
-        });
+      res.status(201).json({
+        success: true,
+        data: { message: "Sale created successfully", sale },
+      });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -31,7 +29,7 @@ const saleController = {
   // Get a sale by ID
   async getSaleById(req, res) {
     try {
-      const sale = await saleService.getSaleById(req.params.id);
+      const sale = await saleService.getSaleById(req.query.id);
       if (!sale) {
         return res.status(404).json({ error: "Sale not found" });
       }
