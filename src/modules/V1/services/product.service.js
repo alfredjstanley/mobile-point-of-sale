@@ -3,8 +3,12 @@ const Product = require("../models/product.model");
 const productService = {
   // Create a new product
   async createProduct(productData) {
-    const newProduct = new Product(productData);
-    return await newProduct.save();
+    const product = new Product(productData);
+    await product.save();
+    return {
+      message: "Procuct created successfully",
+      product,
+    };
   },
 
   // Get all products

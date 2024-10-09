@@ -15,10 +15,10 @@ const productController = {
   // Get all products
   async getAllProducts(req, res) {
     try {
-      const products = await productService.getAllProducts();
-      res.status(200).json({ products });
+      const results = await productService.getAllProducts();
+      responseHandler.sendSuccessResponse(res, results);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      responseHandler.sendBadRequest(res, error.message);
     }
   },
 
