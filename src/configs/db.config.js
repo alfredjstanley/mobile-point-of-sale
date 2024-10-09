@@ -37,7 +37,6 @@ async function establishConnection(attempt = 1) {
       connectTimeoutMS: db_connection_timeout,
       socketTimeoutMS: db_socket_timeout,
     });
-    console.log("✅ DB connection successful");
   } catch (err) {
     console.error(
       `Failed to connect to db on attempt ${attempt}: ${err.message}`

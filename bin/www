@@ -14,32 +14,33 @@ const port = normalizePort(app_port || "8000");
 
 let server;
 
-async function run() {
+async function runStart() {
+  console.log("--".repeat(26));
+  console.info("🚀 Starting server...");
+  await connectDatabase();
+  await initServer();
+}
+
+async function connectDatabase() {
   try {
-    // Establish a connection to the database
     await db.establishConnection();
-
-    // Create and start the HTTP server
-    server = http.createServer(app);
-
-    server.listen(port, () => {
-      console.log(`🌐 Server is listening on http://localhost:${port}/api `);
-      console.log("--".repeat(26), "\n");
-    });
-
-    server.on("error", onError);
+    console.log("✅ Database connected successfully");
   } catch (error) {
-    throw error;
+    console.error("❌ Failed to connect to the database:", error);
+    process.exit(1);
   }
 }
 
-console.log("--".repeat(26));
-console.info("🚀 Starting server...");
+async function initServer() {
+  server = http.createServer(app);
+  server.listen(port, () => {
+    console.log(`🌐 Server is listening on http://localhost:${port}/api`);
+    console.log("--".repeat(26), "\n");
+  });
+  server.on("error", onError);
+}
 
-run().catch((e) => {
-  console.error("Error running the app: ", e);
-  return shutdown();
-});
+runStart().catch(() => shutdown());
 
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);
@@ -71,8 +72,8 @@ function onError(error) {
   }
 }
 
-function shutdown() {
+async function shutdown() {
   console.log("🛑 Gracefully shutting down...\n");
-  if (!server) return;
-  server.close(() => process.exit(0));
+  if (server) await server.close();
+  process.exit(0); // Clean exit.
 }
