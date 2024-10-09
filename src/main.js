@@ -1,6 +1,6 @@
 const app = require("express")();
 
-const appRoutes = require("./routes");
+const appRoutes = require("./handlers/route.handler");
 const appWares = require("./middlewares/app.middleware");
 const errorHandler = require("./handlers/catchError.handler");
 

@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const v1Routes = require("../modules/V1/routes");
 
 function indexRoute(_, res) {
   return res
@@ -7,7 +8,6 @@ function indexRoute(_, res) {
 }
 
 router.get("/", indexRoute);
-
-// Application routes.
+router.use("/v1", v1Routes);
 
 module.exports = router;
