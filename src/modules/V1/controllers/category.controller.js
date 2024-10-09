@@ -20,45 +20,22 @@ const categoryController = {
     }
   },
 
-  // Get a category by ID
-  async getCategory(req, res) {
-    try {
-      const category = await categoryService.getCategoryById(req.params.id);
-      if (!category) {
-        return res.status(404).json({ error: "Category not found" });
-      }
-      res.status(200).json({ category });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  },
-
-  // Update a category
   async updateCategory(req, res) {
+    const { categoryData } = req.body;
+    const categoryId = categoryData.id;
+
+    delete categoryData.id;
+
     try {
       const category = await categoryService.updateCategory(
-        req.params.id,
-        req.body
+        categoryId,
+        categoryData
       );
-      if (!category) {
+      if (!category)
         return res.status(404).json({ error: "Category not found" });
-      }
-      res.status(200).json({ message: "Category updated", category });
+      responseHandler.sendSuccessResponse(res, category);
     } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  },
-
-  // Delete a category
-  async deleteCategory(req, res) {
-    try {
-      const category = await categoryService.deleteCategory(req.params.id);
-      if (!category) {
-        return res.status(404).json({ error: "Category not found" });
-      }
-      res.status(200).json({ message: "Category deleted" });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+      responseHandler.sendBadRequest(res, error.message);
     }
   },
 };

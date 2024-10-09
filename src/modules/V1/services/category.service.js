@@ -16,21 +16,16 @@ const categoryService = {
     return await Category.find();
   },
 
-  // Get a category by ID
-  async getCategoryById(categoryId) {
-    return await Category.findById(categoryId);
-  },
-
   // Update a category
   async updateCategory(categoryId, updateData) {
-    return await Category.findByIdAndUpdate(categoryId, updateData, {
+    const response = await Category.findByIdAndUpdate(categoryId, updateData, {
       new: true,
     });
-  },
 
-  // Delete a category
-  async deleteCategory(categoryId) {
-    return await Category.findByIdAndDelete(categoryId);
+    return {
+      message: "Category updated",
+      updatedCategory: response,
+    };
   },
 };
 
