@@ -19,7 +19,7 @@ COPY --from=build /usr/src/app/node_modules ./node_modules
 COPY . .
 
 # Remove the unnecessary files 
-RUN rm -rf .env .env.example .gitignore .dockerignore Dockerfile
+RUN rm -rf .env.example .gitignore .dockerignore Dockerfile
 
 # Run as non-root user for security
 USER node
