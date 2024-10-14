@@ -10,11 +10,6 @@ const userAuthSchema = new mongoose.Schema(
     },
     mPinHash: {
       type: String,
-      required: true,
-    },
-    emailVerified: {
-      type: Boolean,
-      default: false,
     },
     secretOrKey: {
       type: String,

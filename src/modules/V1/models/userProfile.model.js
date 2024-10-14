@@ -41,6 +41,10 @@ const userProfileSchema = new mongoose.Schema(
         "Please enter a valid email",
       ],
     },
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
     address: {
       street: String,
       city: String,
