@@ -21,16 +21,12 @@ const userAuthSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ["Super-Admin", "Admin", "Staff", "Normal"],
+      enum: ["Super-Admin", "Administrator", "Staff", "Normal"],
     },
     status: {
       type: String,
-      default: "Pending",
+      required: true,
       enum: ["Active", "Pending", "Disabled", "Blocked"],
-    },
-    profile: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "UserProfile",
     },
   },
   {
