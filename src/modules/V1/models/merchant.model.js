@@ -2,10 +2,14 @@ const mongoose = require("mongoose");
 
 const merchantSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "UserAuth",
-      required: true,
+    phoneNumber: {
+      type: String,
+      unique: true,
+      required: [true, "Phone number is required"],
+      match: [
+        /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/,
+        "Please enter a valid phone number.",
+      ],
     },
     businessName: {
       type: String,
@@ -19,12 +23,10 @@ const merchantSchema = new mongoose.Schema(
     },
     taxId: {
       type: String,
-      unique: true,
       trim: true,
     },
     gstNumber: {
       type: String,
-      unique: true,
       trim: true,
     },
     contactEmail: {
@@ -36,10 +38,6 @@ const merchantSchema = new mongoose.Schema(
         "Please enter a valid email",
       ],
     },
-    contactNumber: {
-      type: String,
-      match: [/^\+?[1-9]\d{1,14}$/, "Please enter a valid phone number"],
-    },
     address: {
       street: String,
       city: String,
@@ -47,6 +45,19 @@ const merchantSchema = new mongoose.Schema(
       postalCode: String,
       country: String,
     },
+    bankDetails: {
+      accountName: String,
+      accountNumber: String,
+      bankName: String,
+      swiftCode: String,
+    },
+    operationalHours: [
+      {
+        day: String,
+        openTime: String,
+        closeTime: String,
+      },
+    ],
     website: {
       type: String,
       match: [
@@ -56,8 +67,8 @@ const merchantSchema = new mongoose.Schema(
     },
     status: {
       type: String,
+      required: true,
       enum: ["ACTIVE", "INACTIVE", "PENDING", "SUSPENDED"],
-      default: "PENDING",
     },
     logo: String,
     description: String,
@@ -69,7 +80,6 @@ const merchantSchema = new mongoose.Schema(
   }
 );
 
-merchantSchema.index({ businessName: 1 });
-merchantSchema.index({ gstNumber: 1 });
+merchantSchema.index({ phoneNumber: 1 });
 
 module.exports = mongoose.model("Merchant", merchantSchema);

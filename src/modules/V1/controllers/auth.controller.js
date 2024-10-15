@@ -2,6 +2,18 @@ const authService = require("../services/auth.service");
 const responseHandler = require("../../../handlers/response.handler");
 
 const authController = {
+  async register(req, res) {
+    try {
+      const { phoneNumber, mpin } = req.body;
+      if (!phoneNumber || !mpin)
+        throw new Error("PhoneNumber and PIN required.");
+
+      const responseData = await authService.register({ phoneNumber, mpin });
+      responseHandler.sendSuccessResponse(res, responseData);
+    } catch (error) {
+      responseHandler.sendBadRequest(res, error.message);
+    }
+  },
   async signUp(req, res) {
     try {
       const responseData = await authService.signUp(req.body);

@@ -1,9 +1,41 @@
 const User = require("../models/user.model");
+const Merchant = require("../models/merchant.model");
+const AuthUser = require("../models/authUser.model");
+const UserProfile = require("../models/userProfile.model");
+
 const bcrypt = require("bcrypt");
+const { v4: uuidv4 } = require("uuid");
 
 const generateToken = require("../../../helpers/generateToken.helper");
 
 const authService = {
+  async register({ phoneNumber, mpin }) {
+    const extMerchant = await Merchant.findOne({ phoneNumber });
+    if (extMerchant)
+      throw new Error("Merchant already exists with this phone number.");
+
+    const merchant = new Merchant({ phoneNumber, status: "ACTIVE" });
+    await merchant.save();
+
+    const mPinHash = await bcrypt.hash(mpin, 10);
+
+    const userData = {
+      merchant: merchant._id,
+      secretOrKey: uuidv4(),
+      mustChangePin: false,
+      role: "Administrator",
+      status: "ACTIVE",
+      mPinHash,
+    };
+
+    const newUser = new AuthUser(userData);
+    await newUser.save();
+
+    return {
+      message: "Merchant registered successfully",
+      responseData: newUser,
+    };
+  },
   async signUp(userData) {
     const existingUser = await User.findOne({ email: userData.email });
     if (existingUser) throw new Error("User already exists with this email");
