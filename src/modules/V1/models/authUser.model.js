@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 
 const authUserSchema = new mongoose.Schema(
   {
-    merchant: {
+    Store: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Merchant",
+      ref: "Store",
       required: true,
     },
     mPinHash: {
@@ -22,7 +22,7 @@ const authUserSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ["Super-Admin", "Administrator", "Staff", "Normal"],
+      enum: ["Administrator", "Staff"],
     },
     status: {
       type: String,
