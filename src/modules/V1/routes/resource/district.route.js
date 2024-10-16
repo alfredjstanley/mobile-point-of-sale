@@ -15,6 +15,12 @@ router.get("/", districtController.getDistricts);
 router.post("/", districtController.createDistrict);
 
 /**
+ * @route   GET /districts/state/:stateCode
+ * @desc    Get all districts in a state
+ */
+router.get("/state/:id", districtController.getDistrictsByStateCode);
+
+/**
  * @route   GET /districts/:id
  * @desc    Get a district by ID
  */

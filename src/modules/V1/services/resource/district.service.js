@@ -28,7 +28,16 @@ async function createDistrict(districtData) {
  * @returns {Promise<Array>} - List of all districts.
  */
 async function getDistricts() {
-  return await District.find().populate("state", "name code");
+  return await District.find();
+}
+
+/**
+ * Get all districts by state code.
+ * @param {String} stateCode - State code.
+ * @returns {Promise<Array>} - List of districts in the state.
+ */
+async function getDistrictsByStateCode(stateCode) {
+  return await District.find({ stateCode });
 }
 
 /**
@@ -37,7 +46,10 @@ async function getDistricts() {
  * @returns {Promise<Object>} - The found district.
  */
 async function getDistrictById(id) {
-  const district = await District.findById(id).populate("state", "name code");
+  const district = await District.findById(id).populate(
+    "stateCode",
+    "name code"
+  );
   if (!district) {
     throw new Error("District not found");
   }
@@ -83,9 +95,10 @@ async function deleteDistrict(id) {
 }
 
 module.exports = {
-  createDistrict,
-  getDistricts,
+  getDistrictsByStateCode,
   getDistrictById,
   updateDistrict,
   deleteDistrict,
+  createDistrict,
+  getDistricts,
 };

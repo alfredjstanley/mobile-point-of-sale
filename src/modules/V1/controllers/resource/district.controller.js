@@ -63,10 +63,25 @@ async function deleteDistrict(req, res) {
   }
 }
 
+/**
+ * Controller to handle fetching all districts in a state.
+ */
+async function getDistrictsByStateCode(req, res) {
+  try {
+    const districts = await districtService.getDistrictsByStateCode(
+      req.params.id
+    );
+    res.json(districts);
+  } catch (err) {
+    res.status(404).json({ error: err.message });
+  }
+}
+
 module.exports = {
-  createDistrict,
   getDistricts,
-  getDistrictById,
+  createDistrict,
   updateDistrict,
   deleteDistrict,
+  getDistrictById,
+  getDistrictsByStateCode,
 };
