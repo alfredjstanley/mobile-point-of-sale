@@ -2,10 +2,19 @@ const mongoose = require("mongoose");
 
 const authUserSchema = new mongoose.Schema(
   {
-    Store: {
+    storeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Store",
       required: true,
+    },
+    phoneNumber: {
+      type: String,
+      unique: true,
+      required: [true, "Phone number is required"],
+      match: [
+        /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/,
+        "Please enter a valid phone number.",
+      ],
     },
     mPinHash: {
       required: true,
@@ -22,7 +31,7 @@ const authUserSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ["Administrator", "Staff"],
+      enum: ["Administrator", "Staff", "Normal"],
     },
     status: {
       type: String,

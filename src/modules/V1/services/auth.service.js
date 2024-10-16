@@ -1,5 +1,5 @@
 const User = require("../models/user.model");
-const Merchant = require("../models/merchant.model");
+const Store = require("../models/store.model");
 const AuthUser = require("../models/authUser.model");
 const UserProfile = require("../models/userProfile.model");
 
@@ -10,32 +10,53 @@ const generateToken = require("../../../helpers/generateToken.helper");
 
 const authService = {
   async register({ phoneNumber, mpin }) {
-    const extMerchant = await Merchant.findOne({ phoneNumber });
-    if (extMerchant)
+    const extUser = await AuthUser.findOne({ phoneNumber });
+    if (extUser)
       throw new Error("Merchant already exists with this phone number.");
 
-    const merchant = new Merchant({ phoneNumber, status: "ACTIVE" });
-    await merchant.save();
+    const store = new Store({ status: "ACTIVE" });
+    await store.save();
 
     const mPinHash = await bcrypt.hash(mpin, 10);
 
     const userData = {
-      merchant: merchant._id,
+      storeId: store._id,
       secretOrKey: uuidv4(),
       mustChangePin: false,
       role: "Administrator",
       status: "ACTIVE",
+      phoneNumber,
       mPinHash,
     };
 
-    const newUser = new AuthUser(userData);
-    await newUser.save();
+    const merchant = new AuthUser(userData);
+    await merchant.save();
+
+    const token = generateToken({ identifier: merchant.secretOrKey });
 
     return {
       message: "Merchant registered successfully",
-      responseData: newUser,
+      responseData: merchant,
+      accessToken: token,
     };
   },
+
+  async resetMpin({ phoneNumber, mpin }) {
+    const merchant = await AuthUser.findOne({ phoneNumber });
+    if (!merchant) throw new Error("Merchant not found");
+
+    const mPinHash = await bcrypt.hash(mpin, 10);
+
+    await AuthUser.updateOne(
+      { merchant: merchant._id },
+      { mPinHash, mustChangePin: false, secretOrKey: uuidv4() }
+    );
+
+    return {
+      message: "mPin reseted successfully",
+    };
+  },
+
   async signUp(userData) {
     const existingUser = await User.findOne({ email: userData.email });
     if (existingUser) throw new Error("User already exists with this email");
