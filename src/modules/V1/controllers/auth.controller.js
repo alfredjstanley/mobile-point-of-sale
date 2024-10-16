@@ -1,12 +1,37 @@
 const authService = require("../services/auth.service");
 const responseHandler = require("../../../handlers/response.handler");
 
+function validatePhoneNumber(phoneNumber) {
+  const phoneRegex = /^\+91\s?[6-9]\d{9}$/;
+  return phoneRegex.test(phoneNumber);
+}
+
+function validateMpin(mpin) {
+  const mpinRegex = /^\d{4}$/;
+  return mpinRegex.test(mpin);
+}
+
+function getPhoneNumberAndMpin(req) {
+  const { phoneNumber, mpin } = req.body;
+  if (!phoneNumber || !mpin) {
+    throw new Error("PhoneNumber and PIN required.");
+  }
+
+  if (!validatePhoneNumber(phoneNumber)) {
+    throw new Error("Please enter a valid phone number");
+  }
+
+  if (!validateMpin(mpin)) {
+    throw new Error("Please enter a valid MPIN");
+  }
+
+  return { phoneNumber, mpin };
+}
+
 const authController = {
   async register(req, res) {
     try {
-      const { phoneNumber, mpin } = req.body;
-      if (!phoneNumber || !mpin)
-        throw new Error("PhoneNumber and PIN required.");
+      const { phoneNumber, mpin } = getPhoneNumberAndMpin(req);
 
       const responseData = await authService.register({ phoneNumber, mpin });
       responseHandler.sendSuccessResponse(res, responseData);
@@ -17,9 +42,7 @@ const authController = {
 
   async resetMpin(req, res) {
     try {
-      const { phoneNumber, mpin } = req.body;
-      if (!phoneNumber || !mpin)
-        throw new Error("PhoneNumber and PIN required.");
+      const { phoneNumber, mpin } = getPhoneNumberAndMpin(req);
 
       const responseData = await authService.resetMpin({ phoneNumber, mpin });
       responseHandler.sendSuccessResponse(res, responseData);
@@ -27,25 +50,18 @@ const authController = {
       responseHandler.sendBadRequest(res, error.message);
     }
   },
-  async signUp(req, res) {
+
+  async signIn(req, res) {
     try {
-      const responseData = await authService.signUp(req.body);
+      const { phoneNumber, mpin } = getPhoneNumberAndMpin(req);
+
+      const responseData = await authService.signIn({ phoneNumber, mpin });
       responseHandler.sendSuccessResponse(res, responseData);
     } catch (error) {
       responseHandler.sendBadRequest(res, error.message);
     }
   },
 
-  async login(req, res) {
-    try {
-      const responseData = await authService.login(req.body);
-      responseHandler.sendSuccessResponse(res, responseData);
-    } catch (error) {
-      responseHandler.sendBadRequest(res, error.message);
-    }
-  },
-
-  // Handle adding a new user
   async addUser(req, res) {
     try {
       const responseData = await authService.addUser(req.body);

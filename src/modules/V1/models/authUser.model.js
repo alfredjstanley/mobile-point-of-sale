@@ -11,10 +11,6 @@ const authUserSchema = new mongoose.Schema(
       type: String,
       unique: true,
       required: [true, "Phone number is required"],
-      match: [
-        /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/,
-        "Please enter a valid phone number.",
-      ],
     },
     mPinHash: {
       required: true,
@@ -49,6 +45,14 @@ const authUserSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    loginHistory: [
+      {
+        loginAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   {
     timestamps: true,
@@ -57,6 +61,7 @@ const authUserSchema = new mongoose.Schema(
       transform(_, ret) {
         delete ret.mPinHash;
         delete ret.secretOrKey;
+        delete ret.mustChangePin;
         delete ret.mPinResetToken;
         return ret;
       },
@@ -69,6 +74,15 @@ authUserSchema.index({ secretOrKey: 1 });
 authUserSchema.methods.recordLogin = function () {
   this.lastLoginAt = new Date();
   this.loginCount += 1;
+  this.loginHistory.push({
+    loginAt: new Date(),
+  });
+
+  // Limit history to the last 10 entries
+  if (this.loginHistory.length > 10) {
+    this.loginHistory.shift();
+  }
+
   return this.save();
 };
 

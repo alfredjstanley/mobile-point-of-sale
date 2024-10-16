@@ -3,7 +3,7 @@ const handler = require("../controllers/auth.controller");
 
 authRouter.post("/register", handler.register);
 authRouter.post("/reset", handler.resetMpin);
-authRouter.post("/", handler.login);
+authRouter.post("/", handler.signIn);
 
 authRouter.get("/", handler.getUser);
 authRouter.post("/add", handler.addUser);

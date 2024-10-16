@@ -19,12 +19,20 @@ const authService = {
 
     const mPinHash = await bcrypt.hash(mpin, 10);
 
+    const dateNow = new Date();
+
     const userData = {
-      storeId: store._id,
+      loginHistory: [{ loginAt: dateNow }],
+      lastLoginAt: dateNow,
       secretOrKey: uuidv4(),
+
       mustChangePin: false,
+      storeId: store._id,
+
       role: "Administrator",
       status: "ACTIVE",
+
+      loginCount: 1,
       phoneNumber,
       mPinHash,
     };
@@ -48,28 +56,33 @@ const authService = {
     const mPinHash = await bcrypt.hash(mpin, 10);
 
     await AuthUser.updateOne(
-      { merchant: merchant._id },
+      { _id: merchant._id },
       { mPinHash, mustChangePin: false, secretOrKey: uuidv4() }
     );
 
     return {
-      message: "mPin reseted successfully",
+      message: "mPin reset successful",
     };
   },
 
-  async signUp(userData) {
-    const existingUser = await User.findOne({ email: userData.email });
-    if (existingUser) throw new Error("User already exists with this email");
+  async signIn({ phoneNumber, mpin }) {
+    const authUser = await AuthUser.findOne({ phoneNumber });
+    if (!authUser) throw new Error("User not found");
 
-    const hashedPassword = await bcrypt.hash(userData.secretOrKey, 10);
-    userData.secretOrKey = hashedPassword;
+    const isMatch = await bcrypt.compare(mpin, authUser.mPinHash);
+    if (!isMatch) throw new Error("Incorrect mPin");
 
-    const newUser = new User(userData);
-    await newUser.save();
+    if (authUser.mustChangePin)
+      return {
+        message: "Login successful but must change mPin",
+      };
+    const token = generateToken({ identifier: authUser.secretOrKey });
+    const responseData = await authUser.recordLogin();
 
     return {
-      message: "User registered successfully",
-      userData: newUser,
+      message: "Login successful",
+      accessToken: token,
+      responseData,
     };
   },
 
