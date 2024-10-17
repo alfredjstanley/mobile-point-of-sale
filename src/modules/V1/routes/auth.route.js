@@ -1,6 +1,7 @@
 const authRouter = require("express").Router();
 const handler = require("../controllers/auth.controller");
 
+authRouter.get("/verify/:phoneNumber", handler.verifyUser);
 authRouter.post("/register", handler.register);
 authRouter.post("/reset", handler.resetMpin);
 authRouter.post("/", handler.signIn);

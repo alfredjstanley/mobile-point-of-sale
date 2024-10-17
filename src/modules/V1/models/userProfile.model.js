@@ -2,11 +2,6 @@ const mongoose = require("mongoose");
 
 const userProfileSchema = new mongoose.Schema(
   {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "UserAuth",
-      required: true,
-    },
     username: {
       type: String,
       required: [true, "Username is required"],
@@ -16,11 +11,13 @@ const userProfileSchema = new mongoose.Schema(
     firstName: {
       type: String,
       trim: true,
+      default: null,
       maxlength: [20, "First name cannot be more than 20 characters"],
     },
     lastName: {
       type: String,
       trim: true,
+      default: null,
       maxlength: [20, "Last name cannot be more than 20 characters"],
     },
     gender: {
@@ -43,7 +40,6 @@ const userProfileSchema = new mongoose.Schema(
     },
     emailVerified: {
       type: Boolean,
-      default: false,
     },
     address: {
       street: String,

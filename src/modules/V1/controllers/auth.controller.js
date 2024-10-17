@@ -51,6 +51,25 @@ const authController = {
     }
   },
 
+  async verifyUser(req, res) {
+    try {
+      const phoneNumber = req.params.phoneNumber;
+
+      if (!phoneNumber) {
+        throw new Error("PhoneNumber required.");
+      }
+
+      if (!validatePhoneNumber(phoneNumber)) {
+        throw new Error("Please enter a valid phone number");
+      }
+
+      const responseData = await authService.verifyUser({ phoneNumber });
+      responseHandler.sendSuccessResponse(res, responseData);
+    } catch (error) {
+      responseHandler.sendBadRequest(res, error.message);
+    }
+  },
+
   async signIn(req, res) {
     try {
       const { phoneNumber, mpin } = getPhoneNumberAndMpin(req);

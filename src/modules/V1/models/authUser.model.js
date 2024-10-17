@@ -1,10 +1,16 @@
 const mongoose = require("mongoose");
+const UserProfile = require("../models/userProfile.model");
 
 const authUserSchema = new mongoose.Schema(
   {
     storeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Store",
+      required: true,
+    },
+    userProfile: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserProfile",
       required: true,
     },
     phoneNumber: {
@@ -68,6 +74,22 @@ const authUserSchema = new mongoose.Schema(
     },
   }
 );
+
+authUserSchema.pre("validate", async function (next) {
+  if (this.isNew && !this.userProfile) {
+    try {
+      const userProfile = await UserProfile.create({
+        username: this.phoneNumber,
+      });
+      this.userProfile = userProfile._id;
+      next();
+    } catch (error) {
+      next(error);
+    }
+  } else {
+    next();
+  }
+});
 
 authUserSchema.index({ secretOrKey: 1 });
 

@@ -65,6 +65,18 @@ const authService = {
     };
   },
 
+  async verifyUser({ phoneNumber }) {
+    const merchant = await AuthUser.findOne({ phoneNumber }).populate(
+      "userProfile"
+    );
+    if (!merchant) throw new Error("Merchant not found");
+
+    return {
+      message: "Merchant found",
+      responseData: merchant,
+    };
+  },
+
   async signIn({ phoneNumber, mpin }) {
     const authUser = await AuthUser.findOne({ phoneNumber });
     if (!authUser) throw new Error("User not found");
