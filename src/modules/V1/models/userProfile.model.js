@@ -31,7 +31,6 @@ const userProfileSchema = new mongoose.Schema(
     email: {
       type: String,
       trim: true,
-      unique: true,
       lowercase: true,
       match: [
         /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})$/,
