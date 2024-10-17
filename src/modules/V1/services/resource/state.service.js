@@ -18,7 +18,6 @@ async function createState(stateData) {
     name: stateData.name,
     code: stateData.code,
     capital: stateData.capital,
-    population: stateData.population,
     area: stateData.area,
   });
 

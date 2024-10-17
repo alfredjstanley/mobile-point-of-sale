@@ -16,12 +16,7 @@ const districtSchema = new mongoose.Schema(
       required: true,
       ref: "State",
     },
-    population: {
-      type: Number,
-    },
-    area: {
-      type: Number,
-    },
+    area: Number,
   },
   {
     versionKey: false,
