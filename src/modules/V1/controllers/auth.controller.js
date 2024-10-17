@@ -36,7 +36,7 @@ const authController = {
       const responseData = await authService.register({ phoneNumber, mpin });
       responseHandler.sendSuccessResponse(res, responseData);
     } catch (error) {
-      responseHandler.sendBadRequest(res, error.message);
+      responseHandler.sendFailureResponse(res, error.message);
     }
   },
 
@@ -47,7 +47,7 @@ const authController = {
       const responseData = await authService.resetMpin({ phoneNumber, mpin });
       responseHandler.sendSuccessResponse(res, responseData);
     } catch (error) {
-      responseHandler.sendBadRequest(res, error.message);
+      responseHandler.sendFailureResponse(res, error.message);
     }
   },
 
@@ -66,7 +66,7 @@ const authController = {
       const responseData = await authService.verifyUser({ phoneNumber });
       responseHandler.sendSuccessResponse(res, responseData);
     } catch (error) {
-      responseHandler.sendBadRequest(res, error.message);
+      responseHandler.sendFailureResponse(res, error.message);
     }
   },
 
@@ -77,7 +77,7 @@ const authController = {
       const responseData = await authService.signIn({ phoneNumber, mpin });
       responseHandler.sendSuccessResponse(res, responseData);
     } catch (error) {
-      responseHandler.sendBadRequest(res, error.message);
+      responseHandler.sendFailureResponse(res, error.message);
     }
   },
 

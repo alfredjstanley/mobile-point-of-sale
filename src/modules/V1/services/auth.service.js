@@ -44,8 +44,9 @@ const authService = {
 
     return {
       message: "Merchant registered successfully",
-      responseData: merchant,
       accessToken: token,
+      userRole: merchant.role,
+      userStatus: merchant.status,
     };
   },
 
@@ -72,8 +73,10 @@ const authService = {
     if (!merchant) throw new Error("Merchant not found");
 
     return {
-      message: "Merchant found",
-      responseData: merchant,
+      message: "Merchant exists",
+      firstName: merchant.userProfile.firstName,
+      username: merchant.userProfile.username,
+      userStatus: merchant.status,
     };
   },
 
@@ -94,7 +97,8 @@ const authService = {
     return {
       message: "Login successful",
       accessToken: token,
-      responseData,
+      userRole: responseData.role,
+      userStatus: responseData.status,
     };
   },
 

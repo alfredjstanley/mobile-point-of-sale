@@ -39,9 +39,19 @@ const storeSchema = new mongoose.Schema(
     address: {
       street: String,
       city: String,
-      state: String,
       postalCode: String,
-      country: String,
+      district: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "District",
+      },
+      state: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "State",
+      },
+      country: {
+        type: String,
+        default: "India",
+      },
     },
     bankDetails: {
       accountName: String,
