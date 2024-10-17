@@ -1,7 +1,8 @@
 const User = require("../models/user.model");
-const Store = require("../models/store.model");
 const AuthUser = require("../models/authUser.model");
 const UserProfile = require("../models/userProfile.model");
+
+const storeService = require("../services/store.service");
 
 const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
@@ -14,8 +15,7 @@ const authService = {
     if (extUser)
       throw new Error("Merchant already exists with this phone number.");
 
-    const store = new Store({ status: "ACTIVE" });
-    await store.save();
+    const store = await storeService.createStore({ status: "ACTIVE" });
 
     const mPinHash = await bcrypt.hash(mpin, 10);
 
