@@ -34,7 +34,7 @@ const authController = {
       const { phoneNumber, mpin } = getPhoneNumberAndMpin(req);
 
       const responseData = await authService.register({ phoneNumber, mpin });
-      responseHandler.sendSuccessResponse(res, responseData);
+      responseHandler.sendCreatedResponse(res, responseData);
     } catch (error) {
       responseHandler.sendFailureResponse(res, error.message);
     }
@@ -64,7 +64,7 @@ const authController = {
       }
 
       const responseData = await authService.verifyUser({ phoneNumber });
-      responseHandler.sendSuccessResponse(res, responseData);
+      responseHandler.sendAcceptedResponse(res, responseData);
     } catch (error) {
       responseHandler.sendFailureResponse(res, error.message);
     }
@@ -90,7 +90,6 @@ const authController = {
     }
   },
 
-  // Get user by ID
   async getUser(req, res) {
     try {
       const responseData = await authService.getUserById(req.query.id);
@@ -100,7 +99,6 @@ const authController = {
     }
   },
 
-  // Get users
   async getUsers(req, res) {
     try {
       const responseData = await authService.getUsers();

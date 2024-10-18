@@ -29,6 +29,7 @@ const authUserSchema = new mongoose.Schema(
     },
     mPinResetToken: {
       type: String,
+      default: null,
     },
     role: {
       type: String,
@@ -42,6 +43,7 @@ const authUserSchema = new mongoose.Schema(
     },
     lastLoginAt: {
       type: Date,
+      default: null,
     },
     loginCount: {
       type: Number,

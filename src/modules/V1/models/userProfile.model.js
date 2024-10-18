@@ -27,6 +27,7 @@ const userProfileSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
+      default: null,
     },
     email: {
       type: String,
@@ -36,16 +37,29 @@ const userProfileSchema = new mongoose.Schema(
         /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})$/,
         "Please enter a valid email",
       ],
+      default: null,
     },
     emailVerified: {
       type: Boolean,
+      default: false,
     },
     address: {
-      street: String,
-      city: String,
-      state: String,
-      postalCode: String,
-      country: String,
+      city: { type: String, default: null },
+      district: {
+        type: String,
+        default: null,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "District",
+      },
+      state: {
+        type: String,
+        default: null,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "State",
+      },
+      street: { type: String, default: null },
+      postalCode: { type: String, default: null },
+      country: { type: String, default: "IN" },
     },
   },
   {
