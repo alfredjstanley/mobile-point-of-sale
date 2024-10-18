@@ -1,6 +1,5 @@
 const User = require("../models/user.model");
 const AuthUser = require("../models/authUser.model");
-const UserProfile = require("../models/userProfile.model");
 
 const storeService = require("../services/store.service");
 
@@ -102,22 +101,20 @@ const authService = {
     };
   },
 
-  async login({ email, secretOrKey }) {
-    const user = await User.findOne({ email });
+  async getUserStoreId(secretOrKey) {
+    const user = await AuthUser.findOne({ secretOrKey }, { storeId: 1 });
     if (!user) throw new Error("User not found");
 
-    const isMatch = await bcrypt.compare(secretOrKey, user.secretOrKey);
-    if (!isMatch) throw new Error("Incorrect password");
+    return { storeId: user.storeId };
+  },
 
-    const token = generateToken({ identifier: user._id });
+  async getUserProfile(secretOrKey) {
+    const user = await AuthUser.findOne({ secretOrKey }).populate(
+      "userProfile"
+    );
+    if (!user) throw new Error("User not found");
 
-    const response = {
-      message: "Login successful",
-      accessToken: token,
-      userData: user,
-    };
-
-    return response;
+    return { userProfile: user.userProfile };
   },
 
   async addUser(userData) {
