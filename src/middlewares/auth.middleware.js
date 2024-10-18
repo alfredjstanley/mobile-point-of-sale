@@ -9,11 +9,11 @@ function verifyUser(req, res, next) {
   if (!token)
     return res
       .status(403)
-      .json({ message: "Forbidden; don't suck your thump boy!" });
+      .json({ message: "Forbidden; don't suck your thumb boy!" });
 
   jwt.verify(token, app_key, (error, decoded) => {
     if (error) return res.status(401).json({ message: "Token is invalid" });
-    if (decoded.identiifier) req.user = decoded;
+    req.identifier = decoded.identifier ? decoded.identifier : null;
     next();
   });
 }
