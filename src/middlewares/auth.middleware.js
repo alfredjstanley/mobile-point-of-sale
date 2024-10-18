@@ -6,7 +6,10 @@ function verifyUser(req, res, next) {
 
   const token = authHeader && authHeader.split(" ")[1];
 
-  if (!token) return res.status(403).json({ message: "Forbidden" });
+  if (!token)
+    return res
+      .status(403)
+      .json({ message: "Forbidden; don't suck your thump boy!" });
 
   jwt.verify(token, app_key, (error, decoded) => {
     if (error) return res.status(401).json({ message: "Token is invalid" });
