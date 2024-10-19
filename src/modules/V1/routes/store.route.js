@@ -2,11 +2,10 @@ const express = require("express");
 const router = express.Router();
 
 const handler = require("../controllers/store.controller");
+const verifyUser = require("../../../middlewares/auth.middleware");
 
-router.post("/", handler.createStore);
-router.get("/", handler.getAllStores);
-router.get("/:id", handler.getStoreById);
-router.put("/:id", handler.updateStore);
-router.delete("/:id", handler.deleteStore);
+router.get("/", verifyUser, handler.getStoreDetails);
+router.delete("/", verifyUser, handler.deleteStore);
+router.put("/", verifyUser, handler.updateStore);
 
 module.exports = router;

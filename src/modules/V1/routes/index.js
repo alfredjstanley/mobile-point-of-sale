@@ -15,7 +15,7 @@ const districtRouter = require("./resource/district.route");
 router.use("/", authRoute);
 router.use("/sales", saleRouter);
 router.use("/states", stateRouter);
-router.use("/stores", storeRouter);
+router.use("/store", storeRouter);
 router.use("/reports", reportRouter);
 router.use("/products", productRoute);
 router.use("/customers", customerRouter);

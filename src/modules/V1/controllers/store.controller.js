@@ -1,47 +1,23 @@
 const storeService = require("../services/store.service");
 
-/**
- * Create a new store
- * @param {Object} req - Request object
- * @param {Object} res - Response object
- */
-const createStore = async (req, res) => {
-  try {
-    const store = await storeService.createStore(req.body);
-    res.status(201).json(store);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-/**
- * Get all stores
- * @param {Object} req - Request object
- * @param {Object} res - Response object
- */
-const getAllStores = async (req, res) => {
-  try {
-    const stores = await storeService.getAllStores(req.query);
-    res.status(200).json(stores);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
+const { getUserStoreId } = require("../services/auth.service");
+const responseHandler = require("../../../handlers/response.handler");
 
 /**
  * Get a store by ID
  * @param {Object} req - Request object
  * @param {Object} res - Response object
  */
-const getStoreById = async (req, res) => {
+const getStoreDetails = async (req, res) => {
   try {
-    const store = await storeService.getStoreById(req.params.id);
-    if (!store) {
-      return res.status(404).json({ error: "Store not found" });
-    }
-    res.status(200).json(store);
+    const { storeId } = await getUserStoreId(req.identifier);
+
+    const storeData = await storeService.getStoreById(storeId);
+    if (!storeData) return res.status(404).json({ error: "Store not found" });
+
+    responseHandler.sendSuccessResponse(res, storeData);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    responseHandler.sendFailureResponse(res, error.message);
   }
 };
 
@@ -52,24 +28,27 @@ const getStoreById = async (req, res) => {
  */
 const updateStore = async (req, res) => {
   try {
-    const store = await storeService.updateStore(req.params.id, req.body);
-    if (!store) {
-      return res.status(404).json({ error: "Store not found" });
-    }
-    res.status(200).json(store);
+    const { storeId } = await getUserStoreId(req.identifier);
+
+    const store = await storeService.updateStore(storeId, req.body);
+    if (!store) return res.status(404).json({ error: "Store not found" });
+
+    responseHandler.sendSuccessResponse(res, store);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
 
 /**
- * Delete a store by ID
+ * Delete ( soft delete ) a store by ID
  * @param {Object} req - Request object
  * @param {Object} res - Response object
  */
 const deleteStore = async (req, res) => {
   try {
-    const store = await storeService.deleteStore(req.params.id);
+    const { storeId } = await getUserStoreId(req.identifier);
+
+    const store = await storeService.deleteStore(storeId);
     if (!store) {
       return res.status(404).json({ error: "Store not found" });
     }
@@ -80,9 +59,7 @@ const deleteStore = async (req, res) => {
 };
 
 module.exports = {
-  createStore,
-  getAllStores,
-  getStoreById,
+  getStoreDetails,
   updateStore,
   deleteStore,
 };

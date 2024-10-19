@@ -25,7 +25,7 @@ const getAllStores = async (query = {}) => {
  * @returns {Promise<Object>} - Store object
  */
 const getStoreById = async (id) => {
-  return await Store.findById(id);
+  return await Store.findById(id).populate("address.district address.state");
 };
 
 /**
