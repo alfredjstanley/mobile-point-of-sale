@@ -1,6 +1,6 @@
 const storeService = require("../services/store.service");
 
-const { getUserStoreId } = require("../services/auth.service");
+const { getUserStoreIds } = require("../services/auth.service");
 const responseHandler = require("../../../handlers/response.handler");
 
 /**
@@ -10,7 +10,7 @@ const responseHandler = require("../../../handlers/response.handler");
  */
 const getStoreDetails = async (req, res) => {
   try {
-    const { storeId } = await getUserStoreId(req.identifier);
+    const { storeId } = await getUserStoreIds(req.identifier);
 
     const storeData = await storeService.getStoreById(storeId);
     if (!storeData) return res.status(404).json({ error: "Store not found" });
@@ -28,7 +28,7 @@ const getStoreDetails = async (req, res) => {
  */
 const updateStore = async (req, res) => {
   try {
-    const { storeId } = await getUserStoreId(req.identifier);
+    const { storeId } = await getStoreId(req.identifier);
 
     const store = await storeService.updateStore(storeId, req.body);
     if (!store) return res.status(404).json({ error: "Store not found" });
@@ -46,7 +46,7 @@ const updateStore = async (req, res) => {
  */
 const deleteStore = async (req, res) => {
   try {
-    const { storeId } = await getUserStoreId(req.identifier);
+    const { storeId } = await getStoreId(req.identifier);
 
     const store = await storeService.deleteStore(storeId);
     if (!store) {

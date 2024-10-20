@@ -1,4 +1,4 @@
-const User = require("../models/user.model");
+const User = require("../models/authUser.model");
 const AuthUser = require("../models/authUser.model");
 
 const storeService = require("../services/store.service");
@@ -101,11 +101,19 @@ const authService = {
     };
   },
 
-  async getUserStoreId(secretOrKey) {
+  /**
+   *
+   * @param {object} secretOrKey
+   * @returns {
+   * storeId: string,
+   * userId: string
+   * }
+   */
+  async getUserStoreIds(secretOrKey) {
     const user = await AuthUser.findOne({ secretOrKey }, { storeId: 1 });
     if (!user) throw new Error("User not found");
 
-    return { storeId: user.storeId };
+    return { storeId: user.storeId, userId: user._id };
   },
 
   async getUserProfile(secretOrKey) {
@@ -117,6 +125,35 @@ const authService = {
     return { userProfile: user.userProfile };
   },
 
+  /**
+   * Get user ID by secretOrKey
+   * @param {string} secretOrKey
+   * @returns {object} userId
+   * @throws {Error} User not found
+   * @example
+   * const { userId } = await getUserId(secretOrKey);
+   **/
+  async getUserId(secretOrKey) {
+    const user = await AuthUser.findOne({ secretOrKey }, { _id: 1 });
+    if (!user) throw new Error("User not found");
+
+    return { userId: user._id };
+  },
+
+  /**
+   * Get store ID by secretOrKey
+   * @param {string} secretOrKey
+   * @returns {object} storeId
+   * @throws {Error} User not found
+   * @example
+   * const { storeId } = await getStoreId(secretOrKey);
+   **/
+  async getStoreId(secretOrKey) {
+    const user = await AuthUser.findOne({ secretOrKey }, { storeId: 1 });
+    if (!user) throw new Error("User not found");
+
+    return { storeId: user.storeId };
+  },
   async addUser(userData) {
     const existingUser = await User.findOne({ email: userData.email });
     if (existingUser) throw new Error("User already exists with this email");
