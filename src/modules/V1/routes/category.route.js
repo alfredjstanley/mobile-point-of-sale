@@ -1,8 +1,21 @@
-const categoryRouter = require("express").Router();
+const router = require("express").Router();
+
 const handler = require("../controllers/category.controller");
+const handleValidationErrors = require("../../../handlers/request.handler");
+const authMiddleware = require("../../../middlewares/auth.middleware");
+const { createCategoryValidator } = require("../validators/category.validator");
 
-categoryRouter.post("/", handler.createCategory);
-categoryRouter.get("/", handler.getAllCategories);
-categoryRouter.post("/update", handler.updateCategory);
+router.post(
+  "/",
+  authMiddleware,
+  createCategoryValidator,
+  handleValidationErrors,
+  handler.createCategory
+);
 
-module.exports = categoryRouter;
+router.get("/", authMiddleware, handler.getCategories);
+router.get("/:id", authMiddleware, handler.getCategoryById);
+router.put("/:id", authMiddleware, handler.updateCategory);
+router.delete("/:id", authMiddleware, handler.deleteCategory);
+
+module.exports = router;

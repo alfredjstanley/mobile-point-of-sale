@@ -1,43 +1,98 @@
 const categoryService = require("../services/category.service");
 const responseHandler = require("../../../handlers/response.handler");
 
-const categoryController = {
-  async createCategory(req, res) {
-    try {
-      const category = await categoryService.createCategory(req.body);
-      responseHandler.sendSuccessResponse(res, category);
-    } catch (error) {
-      responseHandler.sendBadRequest(res, error.message);
-    }
-  },
+const {
+  getUserId,
+  getStoreId,
+  getUserStoreIds,
+} = require("../services/auth.service");
 
-  async getAllCategories(_, res) {
+class CategoryController {
+  async createCategory(req, res, next) {
     try {
-      const categories = await categoryService.getAllCategories();
+      const data = req.body;
+      const { storeId, userId } = await getUserStoreIds(req.identifier);
+
+      data.storeId = storeId;
+      data.createdBy = userId;
+
+      const category = await categoryService.createCategory(data);
+
+      responseHandler.sendCreatedResponse(res, category);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getCategories(req, res, next) {
+    try {
+      const { storeId } = await getStoreId(req.identifier);
+      const categories = await categoryService.getCategories({
+        storeId,
+        status: "ACTIVE",
+      });
       responseHandler.sendSuccessResponse(res, categories);
     } catch (error) {
-      responseHandler.sendBadRequest(res, error.message);
+      next(error);
     }
-  },
+  }
 
-  async updateCategory(req, res) {
-    const { categoryData } = req.body;
-    const categoryId = categoryData.id;
-
-    delete categoryData.id;
-
+  // Get a category by ID
+  async getCategoryById(req, res, next) {
     try {
-      const category = await categoryService.updateCategory(
-        categoryId,
-        categoryData
-      );
-      if (!category)
-        return res.status(404).json({ error: "Category not found" });
+      const categoryId = req.params.id;
+      if (!categoryId) {
+        return responseHandler.sendBadRequest(res, "Category ID is required");
+      }
+      const category = await categoryService.getCategoryById(categoryId);
+      if (!category) {
+        return responseHandler.sendNotFoundResponse(res, "Category not found");
+      }
+
       responseHandler.sendSuccessResponse(res, category);
     } catch (error) {
-      responseHandler.sendBadRequest(res, error.message);
+      next(error);
     }
-  },
-};
+  }
 
-module.exports = categoryController;
+  // Update a category by ID
+  async updateCategory(req, res, next) {
+    try {
+      const data = req.body;
+
+      const categoryId = req.params.id;
+      if (!categoryId) {
+        return responseHandler.sendBadRequest(res, "Category ID is required");
+      }
+      const { userId } = await getUserId(req.identifier);
+      data.modifiedBy = userId;
+
+      const category = await categoryService.updateCategory(categoryId, data);
+      if (!category) {
+        return responseHandler.sendNotFoundResponse(res, "Category not found");
+      }
+      responseHandler.sendSuccessResponse(res, category);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Delete a category by ID
+  async deleteCategory(req, res, next) {
+    try {
+      const categoryId = req.params.id;
+      if (!categoryId) {
+        return responseHandler.sendBadRequest(res, "Category ID is required");
+      }
+      const category = await categoryService.deleteCategory(categoryId);
+      if (!category) {
+        return responseHandler.sendNotFoundResponse(res, "Category not found");
+      }
+      responseHandler.sendSuccessResponse(res, category);
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+module.exports = new CategoryController();

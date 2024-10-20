@@ -1,32 +1,42 @@
 const Category = require("../models/category.model");
 
-const categoryService = {
-  // Create a new category
-  async createCategory(categoryData) {
-    const category = new Category(categoryData);
-    await category.save();
+class CategoryService {
+  async createCategory(data) {
+    const category = new Category(data);
+    const result = await category.save();
+
     return {
       message: "Category created successfully",
-      category,
+      category: result,
     };
-  },
+  }
 
-  // Get all categories
-  async getAllCategories() {
-    return await Category.find();
-  },
+  async getCategories(filter = {}) {
+    return await Category.find(filter, { storeId: 0 });
+  }
 
-  // Update a category
-  async updateCategory(categoryId, updateData) {
-    const response = await Category.findByIdAndUpdate(categoryId, updateData, {
-      new: true,
-    });
+  async getCategoryById(id) {
+    return await Category.findById(id);
+  }
+
+  async updateCategory(id, data) {
+    const catogory = await Category.findByIdAndUpdate(id, data, { new: true });
 
     return {
       message: "Category updated",
-      updatedCategory: response,
+      updatedCategory: catogory,
     };
-  },
-};
+  }
 
-module.exports = categoryService;
+  async deleteCategory(id) {
+    await Category.findByIdAndUpdate(id, {
+      status: "INACTIVE",
+    });
+
+    return {
+      message: "Category deleted successfully",
+    };
+  }
+}
+
+module.exports = new CategoryService();
