@@ -36,6 +36,11 @@ const authUserSchema = new mongoose.Schema(
       required: true,
       enum: ["Administrator", "Staff", "Normal"],
     },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AuthUser",
+      default: null,
+    },
     status: {
       type: String,
       required: true,

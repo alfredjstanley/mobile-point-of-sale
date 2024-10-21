@@ -42,7 +42,10 @@ class CategoryController {
     try {
       const categoryId = req.params.id;
       if (!categoryId) {
-        return responseHandler.sendBadRequest(res, "Category ID is required");
+        return responseHandler.sendFailureResponse(
+          res,
+          "Category ID is required"
+        );
       }
       const category = await categoryService.getCategoryById(categoryId);
       if (!category) {
@@ -62,7 +65,10 @@ class CategoryController {
 
       const categoryId = req.params.id;
       if (!categoryId) {
-        return responseHandler.sendBadRequest(res, "Category ID is required");
+        return responseHandler.sendFailureResponse(
+          res,
+          "Category ID is required"
+        );
       }
       const { userId } = await getUserId(req.identifier);
       data.modifiedBy = userId;
@@ -82,7 +88,10 @@ class CategoryController {
     try {
       const categoryId = req.params.id;
       if (!categoryId) {
-        return responseHandler.sendBadRequest(res, "Category ID is required");
+        return responseHandler.sendFailureResponse(
+          res,
+          "Category ID is required"
+        );
       }
       const category = await categoryService.deleteCategory(categoryId);
       if (!category) {

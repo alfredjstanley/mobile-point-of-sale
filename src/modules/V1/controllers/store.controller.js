@@ -1,6 +1,6 @@
 const storeService = require("../services/store.service");
 
-const { getUserStoreIds } = require("../services/auth.service");
+const { getUserStoreIds, getStoreId } = require("../services/auth.service");
 const responseHandler = require("../../../handlers/response.handler");
 
 /**

@@ -81,30 +81,56 @@ const authController = {
     }
   },
 
-  async addUser(req, res) {
+  async addStaff(req, res) {
     try {
-      const responseData = await authService.addUser(req.body);
-      responseHandler.sendSuccessResponse(res, responseData);
+      const { phoneNumber, mpin, role } = req.body;
+
+      if (!phoneNumber || !mpin || !role) {
+        throw new Error(
+          "PhoneNumber, MPIN, Store ID, Role, and Current User required."
+        );
+      }
+      if (!validatePhoneNumber(phoneNumber)) {
+        throw new Error("Please enter a valid phone number");
+      }
+
+      if (!validateMpin(mpin)) {
+        throw new Error("Please enter a valid MPIN");
+      }
+
+      const { storeId, userId } = await authService.getUserStoreIds(
+        req.identifier
+      );
+      const responseData = await authService.addStaff({
+        currentUser: userId,
+        phoneNumber,
+        storeId,
+        mpin,
+        role,
+      });
+      responseHandler.sendCreatedResponse(res, responseData);
     } catch (error) {
-      responseHandler.sendBadRequest(res, error.message);
+      responseHandler.sendFailureResponse(res, error.message);
     }
   },
 
-  async getUser(req, res) {
+  async getStaffs(req, res) {
     try {
-      const responseData = await authService.getUserById(req.query.id);
+      const { storeId } = await authService.getStoreId(req.identifier);
+
+      const responseData = await authService.getStaffsByStoreId(storeId);
       responseHandler.sendSuccessResponse(res, responseData);
     } catch (error) {
-      responseHandler.sendBadRequest(res, error.message);
+      responseHandler.sendFailureResponse(res, error.message);
     }
   },
 
-  async getUsers(req, res) {
+  async getStaffById(req, res) {
     try {
-      const responseData = await authService.getUsers();
+      const responseData = await authService.getStaffById(req.params.id);
       responseHandler.sendSuccessResponse(res, responseData);
     } catch (error) {
-      responseHandler.sendBadRequest(res, error.message);
+      responseHandler.sendFailureResponse(res, error.message);
     }
   },
 };

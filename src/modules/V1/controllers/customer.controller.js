@@ -8,7 +8,7 @@ const customerController = {
       const customer = await customerService.createCustomer(req.body);
       responseHandler.sendSuccessResponse(res, customer);
     } catch (error) {
-      responseHandler.sendBadRequest(res, error.message);
+      responseHandler.sendFailureResponse(res, error.message);
     }
   },
 
@@ -18,7 +18,7 @@ const customerController = {
       const customers = await customerService.getAllCustomers();
       responseHandler.sendSuccessResponse(res, customers);
     } catch (error) {
-      responseHandler.sendBadRequest(res, error.message);
+      responseHandler.sendFailureResponse(res, error.message);
     }
   },
 };

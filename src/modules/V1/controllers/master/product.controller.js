@@ -41,7 +41,10 @@ class ProductController {
     try {
       const productId = req.params.id;
       if (!productId) {
-        return responseHandler.sendBadRequest(res, "Product ID is required");
+        return responseHandler.sendFailureResponse(
+          res,
+          "Product ID is required"
+        );
       }
       const product = await productService.getProductById(productId);
       if (!product) {
@@ -60,7 +63,10 @@ class ProductController {
 
       const productId = req.params.id;
       if (!productId) {
-        return responseHandler.sendBadRequest(res, "Product ID is required");
+        return responseHandler.sendFailureResponse(
+          res,
+          "Product ID is required"
+        );
       }
       const { userId } = await getUserId(req.identifier);
       data.modifiedBy = userId;
@@ -79,7 +85,10 @@ class ProductController {
     try {
       const productId = req.params.id;
       if (!productId) {
-        return responseHandler.sendBadRequest(res, "Product ID is required");
+        return responseHandler.sendFailureResponse(
+          res,
+          "Product ID is required"
+        );
       }
       const product = await productService.deleteProduct(productId);
       if (!product) {

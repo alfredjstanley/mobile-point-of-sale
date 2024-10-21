@@ -1,6 +1,4 @@
-const User = require("../models/authUser.model");
 const AuthUser = require("../models/authUser.model");
-
 const storeService = require("../services/store.service");
 
 const bcrypt = require("bcrypt");
@@ -9,6 +7,60 @@ const { v4: uuidv4 } = require("uuid");
 const generateToken = require("../../../helpers/generateToken.helper");
 
 const authService = {
+  /**
+   *
+   * @param {object} secretOrKey
+   * @returns {
+   * storeId: string,
+   * userId: string
+   * }
+   */
+  async getUserStoreIds(secretOrKey) {
+    const user = await AuthUser.findOne({ secretOrKey }, { storeId: 1 });
+    if (!user) throw new Error("User not found");
+
+    return { storeId: user.storeId, userId: user._id };
+  },
+
+  async getUserProfile(secretOrKey) {
+    const user = await AuthUser.findOne({ secretOrKey }).populate(
+      "userProfile"
+    );
+    if (!user) throw new Error("User not found");
+
+    return { userProfile: user.userProfile };
+  },
+
+  /**
+   * Get user ID by secretOrKey
+   * @param {string} secretOrKey
+   * @returns {object} userId
+   * @throws {Error} User not found
+   * @example
+   * const { userId } = await getUserId(secretOrKey);
+   **/
+  async getUserId(secretOrKey) {
+    const user = await AuthUser.findOne({ secretOrKey }, { _id: 1 });
+    if (!user) throw new Error("User not found");
+
+    return { userId: user._id };
+  },
+
+  /**
+   * Get store ID by secretOrKey
+   * @param {string} secretOrKey
+   * @returns {object} storeId
+   * @throws {Error} User not found
+   * @example
+   * const { storeId } = await getStoreId(secretOrKey);
+   **/
+  async getStoreId(secretOrKey) {
+    const user = await AuthUser.findOne({ secretOrKey }, { storeId: 1 });
+    if (!user) throw new Error("User not found");
+
+    return { storeId: user.storeId };
+  },
+
   async register({ phoneNumber, mpin }) {
     const extUser = await AuthUser.findOne({ phoneNumber });
     if (extUser)
@@ -101,81 +153,49 @@ const authService = {
     };
   },
 
-  /**
-   *
-   * @param {object} secretOrKey
-   * @returns {
-   * storeId: string,
-   * userId: string
-   * }
-   */
-  async getUserStoreIds(secretOrKey) {
-    const user = await AuthUser.findOne({ secretOrKey }, { storeId: 1 });
-    if (!user) throw new Error("User not found");
+  async addStaff(data) {
+    const { phoneNumber, mpin, storeId, role, currentUser } = data;
 
-    return { storeId: user.storeId, userId: user._id };
-  },
+    const extUser = await AuthUser.findOne({ phoneNumber, storeId });
+    if (extUser)
+      throw new Error("Staff already exists with this phone number.");
 
-  async getUserProfile(secretOrKey) {
-    const user = await AuthUser.findOne({ secretOrKey }).populate(
-      "userProfile"
-    );
-    if (!user) throw new Error("User not found");
+    const mPinHash = await bcrypt.hash(mpin, 10);
 
-    return { userProfile: user.userProfile };
-  },
+    const dateNow = new Date();
 
-  /**
-   * Get user ID by secretOrKey
-   * @param {string} secretOrKey
-   * @returns {object} userId
-   * @throws {Error} User not found
-   * @example
-   * const { userId } = await getUserId(secretOrKey);
-   **/
-  async getUserId(secretOrKey) {
-    const user = await AuthUser.findOne({ secretOrKey }, { _id: 1 });
-    if (!user) throw new Error("User not found");
+    const staffData = {
+      loginHistory: [{ loginAt: dateNow }],
 
-    return { userId: user._id };
-  },
+      createdBy: currentUser,
+      mustChangePin: false,
+      lastLoginAt: dateNow,
 
-  /**
-   * Get store ID by secretOrKey
-   * @param {string} secretOrKey
-   * @returns {object} storeId
-   * @throws {Error} User not found
-   * @example
-   * const { storeId } = await getStoreId(secretOrKey);
-   **/
-  async getStoreId(secretOrKey) {
-    const user = await AuthUser.findOne({ secretOrKey }, { storeId: 1 });
-    if (!user) throw new Error("User not found");
+      secretOrKey: uuidv4(),
+      status: "ACTIVE",
+      loginCount: 1,
 
-    return { storeId: user.storeId };
-  },
-  async addUser(userData) {
-    const existingUser = await User.findOne({ email: userData.email });
-    if (existingUser) throw new Error("User already exists with this email");
+      phoneNumber,
+      mPinHash,
+      storeId,
+      role,
+    };
 
-    const hashedPassword = await bcrypt.hash(userData.email, 10);
-    userData.secretOrKey = hashedPassword;
-
-    const newUser = new User(userData);
-    await newUser.save();
+    const staff = new AuthUser(staffData);
+    await staff.save();
 
     return {
-      message: "User added successfully",
-      userData: newUser,
+      message: "Staff added successfully",
+      staffData: staff,
     };
   },
 
-  async getUserById(userId) {
-    return await User.findById(userId);
+  async getStaffsByStoreId(storeId) {
+    return await AuthUser.find({ storeId, createdBy: { $ne: null } });
   },
 
-  async getUsers() {
-    return await User.find();
+  async getStaffById(staffId) {
+    return await AuthUser.findById(staffId);
   },
 };
 

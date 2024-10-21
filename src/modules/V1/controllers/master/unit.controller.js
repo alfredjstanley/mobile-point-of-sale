@@ -38,7 +38,7 @@ class UnitController {
     try {
       const unitId = req.params.id;
       if (!unitId) {
-        return responseHandler.sendBadRequest(res, "Unit ID is required");
+        return responseHandler.sendFailureResponse(res, "Unit ID is required");
       }
       const unit = await unitService.getUnitById(unitId);
       if (!unit) {
@@ -57,7 +57,7 @@ class UnitController {
 
       const unitId = req.params.id;
       if (!unitId) {
-        return responseHandler.sendBadRequest(res, "Unit ID is required");
+        return responseHandler.sendFailureResponse(res, "Unit ID is required");
       }
 
       const { storeId } = await getStoreId(req.identifier);
@@ -75,7 +75,7 @@ class UnitController {
     try {
       const unitId = req.params.id;
       if (!unitId) {
-        return responseHandler.sendBadRequest(res, "Unit ID is required");
+        return responseHandler.sendFailureResponse(res, "Unit ID is required");
       }
 
       const { storeId } = await getStoreId(req.identifier);
