@@ -1,4 +1,4 @@
-const Product = require("../../models/master/product.model");
+const { Product } = require("../../models/master");
 
 class ProductService {
   async createProduct(productData) {

@@ -1,5 +1,5 @@
 const Sale = require("../models/sales.model");
-const Product = require("../models/product.model");
+const { Product } = require("../models/master");
 
 const saleService = {
   // Create a new sale

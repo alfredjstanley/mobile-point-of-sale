@@ -1,11 +1,11 @@
-const productService = require("../services/product.service");
-const responseHandler = require("../../../handlers/response.handler");
+const { productService } = require("../../services/master");
+const responseHandler = require("../../../../handlers/response.handler");
 
 const {
   getUserId,
   getStoreId,
   getUserStoreIds,
-} = require("../services/auth.service");
+} = require("../../services/auth.service");
 
 class ProductController {
   async createProduct(req, res, next) {
