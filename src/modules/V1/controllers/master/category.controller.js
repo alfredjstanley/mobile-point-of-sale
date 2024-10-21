@@ -1,11 +1,11 @@
-const categoryService = require("../services/category.service");
-const responseHandler = require("../../../handlers/response.handler");
+const categoryService = require("../../services/category.service");
+const responseHandler = require("../../../../handlers/response.handler");
 
 const {
   getUserId,
   getStoreId,
   getUserStoreIds,
-} = require("../services/auth.service");
+} = require("../../services/auth.service");
 
 class CategoryController {
   async createCategory(req, res, next) {

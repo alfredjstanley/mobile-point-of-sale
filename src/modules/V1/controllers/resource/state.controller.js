@@ -1,4 +1,4 @@
-const stateService = require("../../services/resource/state.service");
+const { stateService } = require("../../services/resource");
 
 /**
  * Controller to handle creating a new state.

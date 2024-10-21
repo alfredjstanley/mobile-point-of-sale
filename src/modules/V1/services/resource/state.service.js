@@ -1,4 +1,4 @@
-const State = require("../../models/resource/state.model");
+const { State } = require("../../models/resource");
 
 /**
  * Create a new state.

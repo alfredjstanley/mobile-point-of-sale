@@ -1,5 +1,4 @@
-const District = require("../../models/resource/district.model");
-const State = require("../../models/resource/state.model");
+const { District, State } = require("../../models/resource");
 
 /**
  * Create a new district.
