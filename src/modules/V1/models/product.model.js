@@ -7,24 +7,58 @@ const productSchema = new mongoose.Schema(
       required: [true, "Product name is required"],
       trim: true,
     },
+    productCode: {
+      type: String,
+      required: [true, "Product code is required"],
+      trim: true,
+      unique: true,
+    },
     description: {
       type: String,
       trim: true,
+      default: "",
+    },
+    sellingPrice: {
+      type: Number,
+      required: [true, "Selling price is required"],
+    },
+    purchaseCost: {
+      type: Number,
+      required: [true, "Purchase cost is required"],
+    },
+    margin: {
+      type: Number,
+      default: 0,
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
       required: [true, "Category is required"],
     },
-    price: {
-      type: Number,
-      required: [true, "Price is required"],
-      min: [0, "Price cannot be negative"],
+    unit: {
+      type: String,
+      ref: "Unit",
+      required: [true, "Unit is required"],
     },
-    quantity: {
+    tax: {
       type: Number,
-      required: [true, "Quantity is required"],
-      min: [0, "Quantity cannot be negative"],
+      required: [true, "Tax is required"],
+    },
+    taxIncluded: {
+      type: Boolean,
+      default: false,
+    },
+    isInterTax: {
+      type: Boolean,
+      default: false,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    modifiedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     status: {
       type: String,
@@ -37,5 +71,13 @@ const productSchema = new mongoose.Schema(
     versionKey: false,
   }
 );
+
+// Pre-save hook to calculate margin
+productSchema.pre("save", function (next) {
+  if (this.sellingPrice != null && this.purchaseCost != null) {
+    this.margin = this.sellingPrice - this.purchaseCost;
+  }
+  next();
+});
 
 module.exports = mongoose.model("Product", productSchema);
