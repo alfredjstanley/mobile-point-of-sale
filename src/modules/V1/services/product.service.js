@@ -1,37 +1,41 @@
 const Product = require("../models/product.model");
 
-const productService = {
-  // Create a new product
+class ProductService {
   async createProduct(productData) {
     const product = new Product(productData);
     await product.save();
     return {
-      message: "Procuct created successfully",
+      message: "Product created successfully",
       product,
     };
-  },
+  }
 
-  // Get all products
-  async getAllProducts() {
-    return await Product.find().populate("category");
-  },
+  async getProducts(filter = {}) {
+    return await Product.find(filter, { storeId: 0 });
+  }
 
-  // Get a product by ID
-  async getProductById(productId) {
-    return await Product.findById(productId).populate("category");
-  },
+  async getProductById(id) {
+    return await Product.findById(id);
+  }
 
-  // Update a product
-  async updateProduct(productId, updateData) {
-    return await Product.findByIdAndUpdate(productId, updateData, {
-      new: true,
+  async updateProduct(id, data) {
+    const result = await Product.findByIdAndUpdate(id, data, { new: true });
+
+    return {
+      message: "Product updated",
+      updatedProduct: result,
+    };
+  }
+
+  async deleteProduct(id) {
+    await Product.findByIdAndUpdate(id, {
+      status: "INACTIVE",
     });
-  },
 
-  // Delete a product
-  async deleteProduct(productId) {
-    return await Product.findByIdAndDelete(productId);
-  },
-};
+    return {
+      message: "Product deleted successfully",
+    };
+  }
+}
 
-module.exports = productService;
+module.exports = new ProductService();

@@ -1,68 +1,95 @@
 const productService = require("../services/product.service");
 const responseHandler = require("../../../handlers/response.handler");
 
-const productController = {
-  // Create a new product
-  async createProduct(req, res) {
-    try {
-      const responseData = await productService.createProduct(req.body);
-      responseHandler.sendSuccessResponse(res, responseData);
-    } catch (error) {
-      responseHandler.sendBadRequest(res, error.message);
-    }
-  },
+const {
+  getUserId,
+  getStoreId,
+  getUserStoreIds,
+} = require("../services/auth.service");
 
-  // Get all products
-  async getAllProducts(req, res) {
+class ProductController {
+  async createProduct(req, res, next) {
     try {
-      const results = await productService.getAllProducts();
-      responseHandler.sendSuccessResponse(res, results);
-    } catch (error) {
-      responseHandler.sendBadRequest(res, error.message);
-    }
-  },
+      const data = req.body;
+      const { storeId, userId } = await getUserStoreIds(req.identifier);
 
-  // Get a product by ID
-  async getProduct(req, res) {
+      data.storeId = storeId;
+      data.createdBy = userId;
+
+      const product = await productService.createProduct(data);
+
+      responseHandler.sendCreatedResponse(res, product);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getProducts(req, res, next) {
     try {
-      const product = await productService.getProductById(req.params.id);
-      if (!product) {
-        return res.status(404).json({ error: "Product not found" });
+      const { storeId } = await getStoreId(req.identifier);
+      const products = await productService.getProducts({
+        storeId,
+        status: "ACTIVE",
+      });
+      responseHandler.sendSuccessResponse(res, products);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getProductById(req, res, next) {
+    try {
+      const productId = req.params.id;
+      if (!productId) {
+        return responseHandler.sendBadRequest(res, "Product ID is required");
       }
-      res.status(200).json({ product });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  },
-
-  // Update a product
-  async updateProduct(req, res) {
-    try {
-      const product = await productService.updateProduct(
-        req.params.id,
-        req.body
-      );
+      const product = await productService.getProductById(productId);
       if (!product) {
-        return res.status(404).json({ error: "Product not found" });
+        return responseHandler.sendNotFoundResponse(res, "Product not found");
       }
-      res.status(200).json({ message: "Product updated", product });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  },
 
-  // Delete a product
-  async deleteProduct(req, res) {
+      responseHandler.sendSuccessResponse(res, product);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateProduct(req, res, next) {
     try {
-      const product = await productService.deleteProduct(req.params.id);
-      if (!product) {
-        return res.status(404).json({ error: "Product not found" });
-      }
-      res.status(200).json({ message: "Product deleted" });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  },
-};
+      const data = req.body;
 
-module.exports = productController;
+      const productId = req.params.id;
+      if (!productId) {
+        return responseHandler.sendBadRequest(res, "Product ID is required");
+      }
+      const { userId } = await getUserId(req.identifier);
+      data.modifiedBy = userId;
+
+      const product = await productService.updateProduct(productId, data);
+      if (!product) {
+        return responseHandler.sendNotFoundResponse(res, "Product not found");
+      }
+      responseHandler.sendSuccessResponse(res, product);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteProduct(req, res, next) {
+    try {
+      const productId = req.params.id;
+      if (!productId) {
+        return responseHandler.sendBadRequest(res, "Product ID is required");
+      }
+      const product = await productService.deleteProduct(productId);
+      if (!product) {
+        return responseHandler.sendNotFoundResponse(res, "Product not found");
+      }
+      responseHandler.sendSuccessResponse(res, product);
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+module.exports = new ProductController();

@@ -1,7 +1,21 @@
-const productRouter = require("express").Router();
+const router = require("express").Router();
+
 const handler = require("../controllers/product.controller");
+const authMiddleware = require("../../../middlewares/auth.middleware");
+const handleValidationErrors = require("../../../handlers/request.handler");
+const { createProductValidator } = require("../validators/product.validator");
 
-productRouter.post("/", handler.createProduct);
-productRouter.get("/", handler.getAllProducts);
+router.post(
+  "/",
+  authMiddleware,
+  createProductValidator,
+  handleValidationErrors,
+  handler.createProduct
+);
 
-module.exports = productRouter;
+router.get("/", authMiddleware, handler.getProducts);
+router.put("/:id", authMiddleware, handler.updateProduct);
+router.get("/:id", authMiddleware, handler.getProductById);
+router.delete("/:id", authMiddleware, handler.deleteProduct);
+
+module.exports = router;

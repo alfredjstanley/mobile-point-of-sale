@@ -52,12 +52,19 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    storeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Store",
+      required: true,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
+      required: true,
       ref: "User",
     },
     modifiedBy: {
       type: mongoose.Schema.Types.ObjectId,
+      default: null,
       ref: "User",
     },
     status: {
