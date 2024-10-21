@@ -36,7 +36,7 @@ const productSchema = new mongoose.Schema(
       required: [true, "Category is required"],
     },
     unit: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Unit",
       required: [true, "Unit is required"],
     },

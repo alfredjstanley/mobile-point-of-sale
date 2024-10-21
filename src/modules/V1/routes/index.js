@@ -1,6 +1,7 @@
 const router = require("express").Router();
 
-const authRoute = require("./auth.route");
+const authRouter = require("./auth.route");
+const unitRouter = require("./master/unit.route");
 // const saleRouter = require("./sale.route");
 const storeRouter = require("./store.route");
 // const reportRouter = require("./report.route");
@@ -12,10 +13,11 @@ const categoryRouter = require("./category.route");
 const stateRouter = require("./resource/state.route");
 const districtRouter = require("./resource/district.route");
 
-router.use("/", authRoute);
+router.use("/", authRouter);
 // router.use("/sales", saleRouter);
 router.use("/states", stateRouter);
 router.use("/store", storeRouter);
+router.use("/units", unitRouter);
 // router.use("/reports", reportRouter);
 router.use("/products", productRoute);
 // router.use("/customers", customerRouter);

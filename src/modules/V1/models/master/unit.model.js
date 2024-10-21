@@ -19,6 +19,11 @@ const unitSchema = new mongoose.Schema(
       required: true,
       ref: "User",
     },
+    storeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Store",
+    },
     modifiedBy: {
       type: mongoose.Schema.Types.ObjectId,
       default: null,
