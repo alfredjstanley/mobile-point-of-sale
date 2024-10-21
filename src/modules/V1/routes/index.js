@@ -2,6 +2,8 @@ const router = require("express").Router();
 
 const authRouter = require("./auth.route");
 const unitRouter = require("./master/unit.route");
+const accountRouter = require("./master/account.route");
+
 // const saleRouter = require("./sale.route");
 const storeRouter = require("./store.route");
 // const reportRouter = require("./report.route");
@@ -18,6 +20,7 @@ router.use("/", authRouter);
 router.use("/states", stateRouter);
 router.use("/store", storeRouter);
 router.use("/units", unitRouter);
+router.use("/accounts", accountRouter);
 // router.use("/reports", reportRouter);
 router.use("/products", productRoute);
 // router.use("/customers", customerRouter);

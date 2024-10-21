@@ -8,10 +8,22 @@ const accountSchema = new mongoose.Schema(
       required: [true, "Name is required"],
       maxlength: [100, "Name cannot exceed 100 characters"],
     },
-    mobileNumber: {
-      type: String,
-      trim: true,
-      match: [/^\+91\s?[6-9]\d{9}$/, "Please enter a valid phone number"],
+    contactDetails: {
+      mobileNumber: {
+        type: String,
+        trim: true,
+        match: [/^\+91\s?[6-9]\d{9}$/, "Please enter a valid phone number"],
+      },
+      email: {
+        type: String,
+        trim: true,
+        lowercase: true,
+      },
+      address: {
+        type: String,
+        trim: true,
+        default: "",
+      },
     },
     credit: {
       type: Number,
@@ -25,9 +37,7 @@ const accountSchema = new mongoose.Schema(
     },
     creditDuration: {
       type: Number,
-      required: [true, "Duration is required"],
-      min: [1, "Duration must be at least 1"],
-      comment: "Duration in days/months/years depending on context",
+      default: 0,
     },
     accountType: {
       type: String,
@@ -38,10 +48,20 @@ const accountSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    storeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Store",
+      required: true,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "UserAuth",
       required: true,
+    },
+    modifiedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserAuth",
+      default: null,
     },
   },
   {
