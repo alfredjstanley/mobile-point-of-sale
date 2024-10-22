@@ -8,10 +8,9 @@ const accountSchema = new mongoose.Schema(
       required: [true, "Name is required"],
       maxlength: [100, "Name cannot exceed 100 characters"],
     },
-    phoneNumber: {
+    phone: {
       type: String,
       trim: true,
-      match: [/^\+91\s?[6-9]\d{9}$/, "Please enter a valid phone number"],
     },
     email: {
       type: String,
@@ -67,5 +66,7 @@ const accountSchema = new mongoose.Schema(
     versionKey: false,
   }
 );
+
+accountSchema.index({ phone: 1, storeId: 1 }, { unique: true });
 
 module.exports = mongoose.model("Account", accountSchema);

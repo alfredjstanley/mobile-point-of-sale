@@ -8,14 +8,11 @@ exports.createAccountValidator = [
   //     .withMessage("Account type is required")
   //     .isIn(["CUSTOMER", "SUPPLIER"])
   //     .withMessage("Type must be CUSTOMER or SUPPLIER"),
-  body("contactDetails.mobileNumber")
+  body("phone")
     .optional()
     .isMobilePhone("en-IN")
     .withMessage("Invalid phone number"),
-  body("contactDetails.email")
-    .optional()
-    .isEmail()
-    .withMessage("Invalid email address"),
+  body("email").optional().isEmail().withMessage("Invalid email address"),
   //   body("balance")
   //     .optional()
   //     .isNumeric()
