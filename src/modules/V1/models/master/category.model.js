@@ -6,13 +6,11 @@ const categorySchema = new mongoose.Schema(
       type: String,
       required: [true, "Category name is required"],
       trim: true,
-      unique: true,
     },
     code: {
       type: String,
       required: [true, "Category code is required"],
       trim: true,
-      unique: true,
     },
     description: {
       type: String,
@@ -25,7 +23,7 @@ const categorySchema = new mongoose.Schema(
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      requred: true,
+      required: true,
       ref: "AuthUser",
     },
     modifiedBy: {
@@ -41,23 +39,9 @@ const categorySchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    versionKey: false,
   }
 );
 
-categorySchema.post("save", function (error, doc, next) {
-  if (error.name === "MongoServerError" && error.code === 11000) {
-    // custom error based on the duplicate key
-    if (error.keyPattern.name) {
-      next(new Error("A category with this name already exists."));
-    } else if (error.keyPattern.code) {
-      next(new Error("A category with this code already exists."));
-    } else {
-      next(error);
-    }
-  } else {
-    next(error);
-  }
-});
+categorySchema.index({ name: 1, storeId: 1, code: 1 }, { unique: true });
 
 module.exports = mongoose.model("Category", categorySchema);

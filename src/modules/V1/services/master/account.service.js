@@ -3,18 +3,19 @@ const { Account } = require("../../models/master");
 class AccountService {
   /**
    * Create a new account.
-   * @param {Object} accountData - Data for the new account.
+   * @param {Object} data - Data for the new account.
    * @returns {Promise<Object>} - The created account.
    */
-  async createAccount(accountData) {
+  async createAccount(data) {
     const existingAccount = await Account.findOne({
-      mobileNumber: accountData.mobileNumber,
+      phoneNumber: data.mobileNumber,
+      storeId: data.storeId,
     });
     if (existingAccount) {
       throw new Error("Account with this name or code already exists");
     }
 
-    const account = new Account(accountData);
+    const account = new Account(data);
     const createdAccount = await account.save();
 
     return {

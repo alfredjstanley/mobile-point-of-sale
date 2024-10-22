@@ -1,5 +1,5 @@
 const { categoryService } = require("../../services/master");
-const responseHandler = require("../../../../handlers/response.handler");
+const { responseHandler } = require("../../../../handlers");
 
 const { getUserId, getStoreId, getUserStoreIds } =
   require("../../services/core").authService;

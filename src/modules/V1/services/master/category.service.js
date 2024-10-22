@@ -2,6 +2,14 @@ const { Category } = require("../../models/master");
 
 class CategoryService {
   async createCategory(data) {
+    const existingCategory = await Category.findOne({
+      name: data.name,
+      storeId: data.storeId,
+    });
+    if (existingCategory) {
+      throw new Error("Category with this name already exists");
+    }
+
     const category = new Category(data);
     const result = await category.save();
 

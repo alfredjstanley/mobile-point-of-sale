@@ -8,22 +8,20 @@ const accountSchema = new mongoose.Schema(
       required: [true, "Name is required"],
       maxlength: [100, "Name cannot exceed 100 characters"],
     },
-    contactDetails: {
-      mobileNumber: {
-        type: String,
-        trim: true,
-        match: [/^\+91\s?[6-9]\d{9}$/, "Please enter a valid phone number"],
-      },
-      email: {
-        type: String,
-        trim: true,
-        lowercase: true,
-      },
-      address: {
-        type: String,
-        trim: true,
-        default: "",
-      },
+    phoneNumber: {
+      type: String,
+      trim: true,
+      match: [/^\+91\s?[6-9]\d{9}$/, "Please enter a valid phone number"],
+    },
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
+    address: {
+      type: String,
+      trim: true,
+      default: "",
     },
     credit: {
       type: Number,
