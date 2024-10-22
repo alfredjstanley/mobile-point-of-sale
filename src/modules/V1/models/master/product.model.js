@@ -78,6 +78,7 @@ const productSchema = new mongoose.Schema(
     versionKey: false,
   }
 );
+productSchema.index({ name: 1, storeId: 1, productCode: 1 }, { unique: true });
 
 // Pre-save hook to calculate margin
 productSchema.pre("save", function (next) {

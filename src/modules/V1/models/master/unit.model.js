@@ -41,4 +41,6 @@ const unitSchema = new mongoose.Schema(
   }
 );
 
+unitSchema.index({ name: 1, storeId: 1, unitCode: 1 }, { unique: true });
+
 module.exports = mongoose.model("Unit", unitSchema);
