@@ -77,11 +77,6 @@ const purchaseSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    purchaseType: {
-      type: String,
-      enum: ["LOCAL", "IMPORT"],
-      required: [true, "Purchase type is required"],
-    },
     isCredit: {
       type: Boolean,
       default: false,
@@ -90,10 +85,6 @@ const purchaseSchema = new mongoose.Schema(
       type: String,
       enum: ["CASH", "CARD", "ONLINE", "CREDIT"],
       required: [true, "Payment type is required"],
-    },
-    documentNo: {
-      type: String,
-      trim: true,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

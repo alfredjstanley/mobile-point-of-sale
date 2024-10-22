@@ -67,14 +67,17 @@ const saleSchema = new mongoose.Schema(
       required: [true, "Tax amount is required"],
     },
     igstAmount: {
+      // inter-state GST (rarely used)
       type: Number,
       default: 0,
     },
     cgstAmount: {
+      // central GST
       type: Number,
       default: 0,
     },
     sgstAmount: {
+      // state GST
       type: Number,
       default: 0,
     },
@@ -88,6 +91,7 @@ const saleSchema = new mongoose.Schema(
       required: [true, "Sale type is required"],
     },
     isCredit: {
+      // isCredit is a boolean field that indicates whether the sale is on credit or not.
       type: Boolean,
       default: false,
     },
@@ -96,10 +100,7 @@ const saleSchema = new mongoose.Schema(
       enum: ["CASH", "CARD", "ONLINE", "CREDIT"],
       required: [true, "Payment type is required"],
     },
-    documentNo: {
-      type: String,
-      trim: true,
-    },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "AuthUser",

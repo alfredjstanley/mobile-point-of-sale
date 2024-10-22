@@ -65,7 +65,7 @@ const productSchema = new mongoose.Schema(
     modifiedBy: {
       type: mongoose.Schema.Types.ObjectId,
       default: null,
-      ref: "User",
+      ref: "AuthUser",
     },
     status: {
       type: String,

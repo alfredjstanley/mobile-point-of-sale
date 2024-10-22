@@ -17,7 +17,7 @@ const stockTransactionSchema = new mongoose.Schema(
       ],
       required: [true, "Transaction type is required"],
     },
-    documentNo: {
+    documentNo: { // Sale masterId or Purchase masterId
       type: String,
       trim: true,
     },
