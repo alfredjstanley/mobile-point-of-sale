@@ -1,4 +1,4 @@
-const Store = require("../models/store.model");
+const { Store } = require("../../models/core");
 
 /**
  * Create a new store

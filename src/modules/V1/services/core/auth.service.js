@@ -1,10 +1,8 @@
-const AuthUser = require("../models/authUser.model");
-const storeService = require("../services/store.service");
-
 const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
 
-const generateToken = require("../../../helpers/generateToken.helper");
+const { AuthUser, Store } = require("../../models/core");
+const generateToken = require("../../../../helpers/generateToken.helper");
 
 const authService = {
   /**
@@ -66,7 +64,8 @@ const authService = {
     if (extUser)
       throw new Error("Merchant already exists with this phone number.");
 
-    const store = await storeService.createStore({ status: "ACTIVE" });
+    const newStore = new Store({ status: "ACTIVE" });
+    const store = await newStore.save();
 
     const mPinHash = await bcrypt.hash(mpin, 10);
 

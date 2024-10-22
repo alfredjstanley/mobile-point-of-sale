@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const UserProfile = require("../models/userProfile.model");
+const UserProfile = require("./userProfile.model");
 
 const authUserSchema = new mongoose.Schema(
   {

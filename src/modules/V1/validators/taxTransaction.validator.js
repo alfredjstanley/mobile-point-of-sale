@@ -1,5 +1,3 @@
-// validators/taxTransactionValidator.js
-
 const { body } = require("express-validator");
 
 exports.createTaxTransactionValidator = [

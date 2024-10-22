@@ -1,7 +1,8 @@
 const { saleService } = require("../../services/transaction");
-const responseHandler = require("../../../../handlers/response.handler");
+const { responseHandler } = require("../../../../handlers");
 
-const { getStoreId, getUserStoreIds } = require("../../services/auth.service");
+const { getStoreId, getUserStoreIds } =
+  require("../../services/core").authService;
 
 class SaleController {
   async createSale(req, res, next) {

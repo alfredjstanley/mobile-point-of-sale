@@ -1,9 +1,11 @@
 const router = require("express").Router();
 
-const handler = require("../controllers/master/product.controller");
-const authMiddleware = require("../../../middlewares/auth.middleware");
-const handleValidationErrors = require("../../../handlers/request.handler");
-const { createProductValidator } = require("../validators/product.validator");
+const {
+  createProductValidator,
+} = require("../../validators/product.validator");
+const { authMiddleware } = require("../../../../middlewares");
+const handler = require("../../controllers/master/product.controller");
+const handleValidationErrors = require("../../../../handlers").requestHandler;
 
 router.post(
   "/",

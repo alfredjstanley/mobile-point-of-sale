@@ -1,7 +1,8 @@
-const { accountService } = require("../../services/master");
-const responseHandler = require("../../../../handlers/response.handler");
+const { getStoreId, getUserStoreIds } =
+  require("../../services/core").authService;
 
-const { getStoreId, getUserStoreIds } = require("../../services/auth.service");
+const { accountService } = require("../../services/master");
+const { responseHandler } = require("../../../../handlers");
 
 class AccountController {
   /**

@@ -1,6 +1,6 @@
 const authRouter = require("express").Router();
-const handler = require("../controllers/auth.controller");
-const authMiddleware = require("../../../middlewares/auth.middleware");
+const { authMiddleware } = require("../../../../middlewares");
+const handler = require("../../controllers/core/auth.controller");
 
 authRouter.get("/verify/:phoneNumber", handler.verifyUser);
 authRouter.post("/register", handler.register);

@@ -1,5 +1,5 @@
-const authService = require("../services/auth.service");
-const responseHandler = require("../../../handlers/response.handler");
+const { authService } = require("../../services/core");
+const { responseHandler } = require("../../../../handlers");
 
 function validatePhoneNumber(phoneNumber) {
   const phoneRegex = /^\+91\s?[6-9]\d{9}$/;

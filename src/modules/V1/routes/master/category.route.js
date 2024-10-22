@@ -1,9 +1,11 @@
 const router = require("express").Router();
 
-const handler = require("../controllers/master/category.controller");
-const handleValidationErrors = require("../../../handlers/request.handler");
-const authMiddleware = require("../../../middlewares/auth.middleware");
-const { createCategoryValidator } = require("../validators/category.validator");
+const {
+  createCategoryValidator,
+} = require("../../validators/category.validator");
+const { authMiddleware } = require("../../../../middlewares");
+const handler = require("../../controllers/master/category.controller");
+const handleValidationErrors = require("../../../../handlers").requestHandler;
 
 router.post(
   "/",

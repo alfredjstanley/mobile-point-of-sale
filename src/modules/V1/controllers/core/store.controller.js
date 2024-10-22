@@ -1,7 +1,8 @@
-const storeService = require("../services/store.service");
+const { getUserStoreIds, getStoreId } =
+  require("../../services/core").authService;
 
-const { getUserStoreIds, getStoreId } = require("../services/auth.service");
-const responseHandler = require("../../../handlers/response.handler");
+const { storeService } = require("../../services/core");
+const { responseHandler } = require("../../../../handlers");
 
 /**
  * Get a store by ID
