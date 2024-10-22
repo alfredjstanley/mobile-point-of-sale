@@ -1,4 +1,4 @@
-# mpos_api_server
+# mpos_api
 
 API server to support the Mobile Point of Sale (MPOS) application.
 
