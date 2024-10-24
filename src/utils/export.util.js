@@ -73,3 +73,10 @@ module.exports = {
   exportToPDF,
   exportToCSV,
 };
+
+/**
+ * There she goes, fading into the night;
+ * Goodbye, my dear cold friend.
+ * I can't help but profoundly regret
+ * the way our story has come to an end.
+ */
