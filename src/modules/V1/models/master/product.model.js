@@ -26,6 +26,10 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: [true, "Purchase cost is required"],
     },
+    stockQuantity: {
+      type: Number,
+      default: 0,
+    },
     margin: {
       type: Number,
       default: 0,

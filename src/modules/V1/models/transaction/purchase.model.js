@@ -44,6 +44,11 @@ const purchaseSchema = new mongoose.Schema(
       required: [true, "Purchase invoice ID is required"],
       unique: true,
     },
+    storeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Store",
+      required: [true, "Store is required"],
+    },
     supplier: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Account",

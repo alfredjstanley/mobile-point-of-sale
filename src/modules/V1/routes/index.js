@@ -8,6 +8,7 @@ const storeRouter = require("./core/store.route");
 const saleRouter = require("./transaction/sale.route");
 const productRoute = require("./master/product.route");
 const categoryRouter = require("./master/category.route");
+const purchaseRouter = require("./transaction/purchase.route");
 
 const taxRouter = require("./resource/tax.route");
 const stateRouter = require("./resource/state.route");
@@ -24,6 +25,7 @@ router.use("/store", storeRouter);
 
 router.use("/products", productRoute);
 router.use("/accounts", accountRouter);
+router.use("/purchases", purchaseRouter);
 router.use("/categories", categoryRouter);
 
 router.use("/taxes", taxRouter);

@@ -2,13 +2,12 @@ const {
   Purchase,
   TaxTransaction,
   StockTransaction,
-  accountTransactionModel,
+  AccountTransaction,
 } = require("../../models/transaction");
 
 const { Product } = require("../../models/master");
 
 class PurchaseService {
-  // Create a new purchase
   async createPurchase(data) {
     const session = await Purchase.startSession();
     session.startTransaction();
@@ -32,12 +31,12 @@ class PurchaseService {
           transactionMode: "IN",
           transactionId: purchase._id,
           productId: detail.item,
-          productName: detail.itemName, // You may need to fetch the product name
+          productName: "detail.itemName", // You may need to fetch the product name
           unitId: detail.unit,
-          unit: detail.unitName, // You may need to fetch the unit name
+          unit: detail.unit, // You may need to fetch the unit name
           transactionQuantity: detail.quantity,
           accountId: data.supplier,
-          accountName: data.supplierName, // You may need to fetch the supplier name
+          accountName: "data.supplierName", // You may need to fetch the supplier name
           transactionDate: data.dateOfInvoice,
           documentNo: data.documentNo,
           createdBy: data.createdBy,
@@ -50,7 +49,7 @@ class PurchaseService {
         documentNo: data.documentNo,
         transactionType: "PURCHASE",
         sAccountId: data.supplier,
-        dAccountId: "/* Your business account ID */",
+        dAccountId: data.supplier,
         amount: data.totalAmount,
         accountSourceType: "DEBIT",
         narration: `Purchase Invoice ${data.purchaseInvoiceId}`,
@@ -65,8 +64,8 @@ class PurchaseService {
         transactionMasterId: purchase._id,
         transactionDate: data.dateOfInvoice,
         transactionDirection: "IN",
-        taxId: "/* Tax ID */",
-        taxPercentage: " /* Tax Percentage */",
+        taxId: "671a23930ddd2f5a4e37f73a",
+        taxPercentage: 5,
         taxAmount: data.taxAmount,
         accountId: data.supplier,
         taxableAmount: data.totalAmount - data.taxAmount,
@@ -100,18 +99,6 @@ class PurchaseService {
       .populate("createdBy")
       .populate("purchaseDetails.item")
       .populate("purchaseDetails.unit");
-  }
-
-  // Update a purchase by ID
-  async updatePurchase(id, data) {
-    // Implement update logic, including adjustments to stock, account, and tax transactions
-    // This can be complex and may require additional handling
-  }
-
-  // Delete a purchase by ID
-  async deletePurchase(id) {
-    // Implement deletion logic, including reversing stock, account, and tax transactions
-    // Be cautious with deleting financial records
   }
 }
 
