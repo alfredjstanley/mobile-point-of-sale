@@ -11,7 +11,9 @@ class ProductService {
   }
 
   async getProducts(filter = {}) {
-    return await Product.find(filter, { storeId: 0 });
+    return await Product.find(filter, { storeId: 0 }).populate(
+      "category unit tax"
+    );
   }
 
   async getProductById(id) {
