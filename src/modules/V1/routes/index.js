@@ -9,6 +9,7 @@ const saleRouter = require("./transaction/sale.route");
 const productRoute = require("./master/product.route");
 const categoryRouter = require("./master/category.route");
 
+const taxRouter = require("./resource/tax.route");
 const stateRouter = require("./resource/state.route");
 const districtRouter = require("./resource/district.route");
 
@@ -25,6 +26,7 @@ router.use("/products", productRoute);
 router.use("/accounts", accountRouter);
 router.use("/categories", categoryRouter);
 
+router.use("/taxes", taxRouter);
 router.use("/states", stateRouter);
 router.use("/districts", districtRouter);
 
