@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const initialStates = require("../../misc/migrations/initial/state.migration");
 
 const stateSchema = new mongoose.Schema(
   {
@@ -33,5 +34,18 @@ const stateSchema = new mongoose.Schema(
 );
 
 const State = mongoose.model("State", stateSchema);
+
+// Insert initial documents
+(async () => {
+  try {
+    const count = await State.countDocuments({});
+    if (count === 0) {
+      await State.insertMany(initialStates);
+      console.log("Initial 'States' data migrated");
+    }
+  } catch (error) {
+    console.error("Error inserting initial states:", error);
+  }
+})();
 
 module.exports = State;

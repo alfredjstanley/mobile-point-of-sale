@@ -1,4 +1,4 @@
-const initialTaxes = [
+const taxData = [
   { name: "GST-0", rate: 0, description: "Goods and Services Tax - 0%" },
   { name: "GST-5", rate: 5, description: "Goods and Services Tax - 5%" },
   { name: "GST-12", rate: 12, description: "Goods and Services Tax - 12%" },
@@ -6,4 +6,4 @@ const initialTaxes = [
   { name: "GST-28", rate: 28, description: "Goods and Services Tax - 28%" },
 ];
 
-module.exports = initialTaxes;
+module.exports = taxData;

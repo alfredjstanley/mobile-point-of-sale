@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const initialdistricts = require("../../misc/migrations/initial/district.migration");
 
 const districtSchema = new mongoose.Schema(
   {
@@ -24,5 +25,18 @@ const districtSchema = new mongoose.Schema(
 );
 
 const District = mongoose.model("District", districtSchema);
+
+// Insert initial documents
+(async () => {
+  try {
+    const count = await District.countDocuments({});
+    if (count === 0) {
+      await District.insertMany(initialdistricts);
+      console.log("Initial districts data migrated");
+    }
+  } catch (error) {
+    console.error("Error inserting initial districts:", error);
+  }
+})();
 
 module.exports = District;

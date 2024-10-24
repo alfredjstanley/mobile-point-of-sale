@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const initialTaxes = require("../../data/taxes.data");
+const initialTaxes = require("../../misc/migrations/initial/tax.migration");
 
 const taxSchema = new mongoose.Schema(
   {
@@ -31,7 +31,7 @@ const Tax = mongoose.model("Tax", taxSchema);
     const count = await Tax.countDocuments({});
     if (count === 0) {
       await Tax.insertMany(initialTaxes);
-      console.log("Initial taxes inserted");
+      console.log("Initial 'Taxes' data migrated");
     }
   } catch (error) {
     console.error("Error inserting initial taxes:", error);
