@@ -36,6 +36,10 @@ const accountSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    balance: {
+      type: Number,
+      default: 0,
+    },
     accountType: {
       type: String,
       required: [true, "Account type is required"],

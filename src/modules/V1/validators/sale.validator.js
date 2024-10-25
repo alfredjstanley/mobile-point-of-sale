@@ -60,4 +60,9 @@ exports.createSaleValidator = [
     .withMessage("Tax amount is required")
     .isNumeric()
     .withMessage("Tax amount must be a number"),
+  body("saleDetails.*.taxId")
+    .notEmpty()
+    .withMessage("taxId is required")
+    .isMongoId()
+    .withMessage("Tax ID must be a valid ID"),
 ];
