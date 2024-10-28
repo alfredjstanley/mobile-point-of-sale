@@ -1,79 +1,82 @@
-const districtService = require("../../services/resource/district.service");
+const { districtService } = require("../../services/resource");
+const { responseHandler } = require("../../../../handlers");
+const { DistrictDTO } = require("../../dtos/resource");
 
 /**
  * Controller to handle creating a new district.
  */
-async function createDistrict(req, res) {
+async function createDistrict(req, res, next) {
   try {
-    const district = await districtService.createDistrict(req.body);
-    res.status(201).json(district);
+    const districtData = req.body;
+    const district = await districtService.createDistrict(districtData);
+    responseHandler.sendCreatedResponse(res, district, DistrictDTO);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    next(err);
   }
 }
 
 /**
  * Controller to handle fetching all districts.
  */
-async function getDistricts(req, res) {
+async function getDistricts(req, res, next) {
   try {
     const districts = await districtService.getDistricts();
-    res.json(districts);
+    responseHandler.sendSuccessResponse(res, districts, DistrictDTO);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 }
 
 /**
  * Controller to handle fetching a district by ID.
  */
-async function getDistrictById(req, res) {
+async function getDistrictById(req, res, next) {
   try {
     const district = await districtService.getDistrictById(req.params.id);
-    res.json(district);
+    responseHandler.sendSuccessResponse(res, district, DistrictDTO);
   } catch (err) {
-    res.status(404).json({ error: err.message });
+    next(err);
   }
 }
 
 /**
  * Controller to handle updating a district by ID.
  */
-async function updateDistrict(req, res) {
+async function updateDistrict(req, res, next) {
   try {
     const district = await districtService.updateDistrict(
       req.params.id,
       req.body
     );
-    res.json(district);
+    responseHandler.sendSuccessResponse(res, district, DistrictDTO);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    next(err);
   }
 }
 
 /**
  * Controller to handle deleting a district by ID.
  */
-async function deleteDistrict(req, res) {
+async function deleteDistrict(req, res, next) {
   try {
     await districtService.deleteDistrict(req.params.id);
-    res.json({ message: "District deleted successfully" });
+    responseHandler.sendNoContentResponse(res);
   } catch (err) {
-    res.status(404).json({ error: err.message });
+    next(err);
   }
 }
 
 /**
  * Controller to handle fetching all districts in a state.
  */
-async function getDistrictsByStateCode(req, res) {
+async function getDistrictsByStateCode(req, res, next) {
   try {
     const districts = await districtService.getDistrictsByStateCode(
       req.params.id
     );
-    res.json(districts);
+    responseHandler.sendSuccessResponse(res, districts, DistrictDTO);
   } catch (err) {
-    res.status(404).json({ error: err.message });
+    next(err);
   }
 }
 
