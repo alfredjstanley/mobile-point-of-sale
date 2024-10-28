@@ -14,7 +14,10 @@ const authService = {
    * }
    */
   async getUserStoreIds(secretOrKey) {
-    const user = await AuthUser.findOne({ secretOrKey }, { storeId: 1 });
+    const user = await AuthUser.findOne(
+      { secretOrKey, status: "ACTIVE" },
+      { storeId: 1 }
+    );
     if (!user) throw new Error("User not found");
 
     return { storeId: user.storeId, userId: user._id };
