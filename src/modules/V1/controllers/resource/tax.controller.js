@@ -1,62 +1,64 @@
+const { responseHandler } = require("../../../../handlers");
 const { taxService } = require("../../services/resource");
+const { TaxDTO } = require("../../dtos/resource");
 
 /**
  * Controller to handle creating a new tax.
  */
-async function createTax(req, res) {
+async function createTax(req, res, next) {
   try {
     const tax = await taxService.createTax(req.body);
-    res.status(201).json(tax);
+    responseHandler.sendCreatedResponse(res, tax, TaxDTO);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    next(err);
   }
 }
 
 /**
  * Controller to handle fetching all taxs.
  */
-async function getTaxes(req, res) {
+async function getTaxes(req, res, next) {
   try {
     const taxs = await taxService.getAllTaxes();
-    res.json(taxs);
+    responseHandler.sendSuccessResponse(res, taxs, TaxDTO);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 }
 
 /**
  * Controller to handle fetching a tax by ID.
  */
-async function getTaxById(req, res) {
+async function getTaxById(req, res, next) {
   try {
     const tax = await taxService.getTaxById(req.params.id);
-    res.json(tax);
+    responseHandler.sendSuccessResponse(res, tax, TaxDTO);
   } catch (err) {
-    res.status(404).json({ error: err.message });
+    next(err);
   }
 }
 
 /**
  * Controller to handle updating a tax by ID.
  */
-async function updateTax(req, res) {
+async function updateTax(req, res, next) {
   try {
     const tax = await taxService.updateTax(req.params.id, req.body);
-    res.json(tax);
+    responseHandler.sendSuccessResponse(res, tax, TaxDTO);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    next(err);
   }
 }
 
 /**
  * Controller to handle deleting a tax by ID.
  */
-async function deleteTax(req, res) {
+async function deleteTax(req, res, next) {
   try {
     await taxService.deleteTax(req.params.id);
-    res.json({ message: "Tax deleted successfully" });
+    responseHandler.sendNoContentResponse(res);
   } catch (err) {
-    res.status(404).json({ error: err.message });
+    next(err);
   }
 }
 
