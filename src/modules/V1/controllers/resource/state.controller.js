@@ -1,50 +1,52 @@
 const { stateService } = require("../../services/resource");
+const { responseHandler } = require("../../../../handlers");
+const { StateDTO } = require("../../dtos/resource");
 
 /**
  * Controller to handle creating a new state.
  */
-async function createState(req, res) {
+async function createState(req, res, next) {
   try {
     const state = await stateService.createState(req.body);
-    res.status(201).json(state);
+    responseHandler.sendCreatedResponse(res, state, StateDTO);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    next(err);
   }
 }
 
 /**
  * Controller to handle fetching all states.
  */
-async function getStates(req, res) {
+async function getStates(req, res, next) {
   try {
     const states = await stateService.getStates();
-    res.json(states);
+    responseHandler.sendSuccessResponse(res, states, StateDTO);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 }
 
 /**
  * Controller to handle fetching a state by ID.
  */
-async function getStateById(req, res) {
+async function getStateById(req, res, next) {
   try {
     const state = await stateService.getStateById(req.params.id);
-    res.json(state);
+    responseHandler.sendSuccessResponse(res, state, StateDTO);
   } catch (err) {
-    res.status(404).json({ error: err.message });
+    next(err);
   }
 }
 
 /**
  * Controller to handle updating a state by ID.
  */
-async function updateState(req, res) {
+async function updateState(req, res, next) {
   try {
     const state = await stateService.updateState(req.params.id, req.body);
-    res.json(state);
+    responseHandler.sendSuccessResponse(res, state, StateDTO);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    next(err);
   }
 }
 
@@ -54,9 +56,9 @@ async function updateState(req, res) {
 async function deleteState(req, res) {
   try {
     await stateService.deleteState(req.params.id);
-    res.json({ message: "State deleted successfully" });
+    responseHandler.sendNoContentResponse(res);
   } catch (err) {
-    res.status(404).json({ error: err.message });
+    next(err);
   }
 }
 
