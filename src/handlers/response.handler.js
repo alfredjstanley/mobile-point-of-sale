@@ -1,10 +1,29 @@
 const HTTP_STATUS = require("../utils/httpStatus.util");
 
-// Send a created response
-function sendCreatedResponse(res, data = []) {
+function _toDTO(dtoClass, data) {
+  if (Array.isArray(data)) {
+    return data.map((item) => new dtoClass(item));
+  }
+  return new dtoClass(data);
+}
+
+/**
+ * Send a created response
+ * @param {Object} res - Express response object
+ * @param {Array} data - Data to send in the response
+ * @param {Class} dtoClass - DTO class
+ * @returns {Object} - The response object
+ * @example
+ * sendCreatedResponse(res, data, DTOClass);
+ * @example
+ * sendCreatedResponse(res, data);
+ * @example
+ * sendCreatedResponse(res);
+ */
+function sendCreatedResponse(res, data = [], dtoClass = null) {
   return res.status(HTTP_STATUS.CREATED).json({
     success: true,
-    data: data,
+    data: dtoClass ? _toDTO(dtoClass, data) : data,
   });
 }
 
@@ -47,11 +66,23 @@ function sendInternalServerError(res, error) {
   });
 }
 
-// Send a success response
-function sendSuccessResponse(res, data = []) {
+/**
+ * Send a success response
+ * @param {Object} res - Express response object
+ * @param {Array} data - Data to send in the response
+ * @param {Class} dtoClass - DTO class to map the data
+ * @returns {Object} - The response object
+ * @example
+ * sendSuccessResponse(res, data, DTOClass);
+ * @example
+ * sendSuccessResponse(res, data);
+ * @example
+ * sendSuccessResponse(res);
+ */
+function sendSuccessResponse(res, data = [], dtoClass = null) {
   return res.status(HTTP_STATUS.SUCCESS).json({
     success: true,
-    data: data,
+    data: dtoClass ? _toDTO(dtoClass, data) : data,
   });
 }
 
