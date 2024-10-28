@@ -83,11 +83,11 @@ const authController = {
 
   async addStaff(req, res) {
     try {
-      const { phoneNumber, mpin, role } = req.body;
+      const { phoneNumber, mpin, role, userProfile } = req.body;
 
-      if (!phoneNumber || !mpin || !role) {
+      if (!phoneNumber || !mpin || !role || !userProfile) {
         throw new Error(
-          "PhoneNumber, MPIN, Store ID, Role, and Current User required."
+          "PhoneNumber, MPIN, Store ID, Role, userProfile and Current User required."
         );
       }
       if (!validatePhoneNumber(phoneNumber)) {
@@ -98,11 +98,11 @@ const authController = {
         throw new Error("Please enter a valid MPIN");
       }
 
-      const { storeId, userId } = await authService.getUserStoreIds(
-        req.identifier
-      );
+      const { storeId, userId } = req.identifier;
+
       const responseData = await authService.addStaff({
         currentUser: userId,
+        userProfile,
         phoneNumber,
         storeId,
         mpin,
@@ -116,7 +116,7 @@ const authController = {
 
   async getStaffs(req, res) {
     try {
-      const { storeId } = await authService.getStoreId(req.identifier);
+      const { storeId } = req.identifier;
 
       const responseData = await authService.getStaffsByStoreId(storeId);
       responseHandler.sendSuccessResponse(res, responseData);

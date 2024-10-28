@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
 
-const { AuthUser, Store } = require("../../models/core");
+const { AuthUser, Store, UserProfile } = require("../../models/core");
 const generateToken = require("../../../../helpers/generateToken.helper");
 
 const authService = {
@@ -156,7 +156,7 @@ const authService = {
   },
 
   async addStaff(data) {
-    const { phoneNumber, mpin, storeId, role, currentUser } = data;
+    const { phoneNumber, mpin, storeId, role, currentUser, userProfile } = data;
 
     const extUser = await AuthUser.findOne({ phoneNumber, storeId });
     if (extUser)
@@ -166,8 +166,15 @@ const authService = {
 
     const dateNow = new Date();
 
+    const staffProfile = await UserProfile.create({
+      username: phoneNumber,
+      firstName: userProfile.firstName,
+      lastName: userProfile.lastName,
+    });
+
     const staffData = {
       loginHistory: [{ loginAt: dateNow }],
+      userProfile: staffProfile._id,
 
       createdBy: currentUser,
       mustChangePin: false,
