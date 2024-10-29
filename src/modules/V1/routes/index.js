@@ -13,6 +13,7 @@ const purchaseRouter = require("./transaction/purchase.route");
 const taxRouter = require("./resource/tax.route");
 const stateRouter = require("./resource/state.route");
 const districtRouter = require("./resource/district.route");
+const storeTypeRouter = require("./resource/storeType.route");
 
 // const reportRouter = require("./report.route");
 // const salesReturnRouter = require("./salesReturn.route");
@@ -31,6 +32,7 @@ router.use("/categories", categoryRouter);
 router.use("/taxes", taxRouter);
 router.use("/states", stateRouter);
 router.use("/districts", districtRouter);
+router.use("/store-types", storeTypeRouter);
 
 // router.use("/reports", reportRouter);
 // router.use("/sales-returns", salesReturnRouter);
