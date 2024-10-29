@@ -1,8 +1,6 @@
-const { getStoreId, getUserStoreIds } =
-  require("../../services/core").authService;
-
 const { accountService } = require("../../services/master");
 const { responseHandler } = require("../../../../handlers");
+const { AccountDTO } = require("../../dtos/master");
 
 class AccountController {
   /**
@@ -13,7 +11,7 @@ class AccountController {
   async createAccount(req, res, next) {
     try {
       const data = req.body;
-      const { storeId, userId } = await getUserStoreIds(req.identifier);
+      const { storeId, userId } = req.identifier;
 
       data.storeId = storeId;
       data.createdBy = userId;
@@ -32,10 +30,10 @@ class AccountController {
    */
   async getAccounts(req, res, next) {
     try {
-      const { storeId } = await getStoreId(req.identifier);
+      const { storeId } = req.identifier;
 
       const accounts = await accountService.getAccounts(storeId);
-      responseHandler.sendSuccessResponse(res, accounts);
+      responseHandler.sendSuccessResponse(res, accounts, AccountDTO);
     } catch (error) {
       next(error);
     }

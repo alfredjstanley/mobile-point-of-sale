@@ -8,11 +8,10 @@ class AccountService {
    */
   async createAccount(data) {
     const account = new Account(data);
-    const createdAccount = await account.save();
+    await account.save();
 
     return {
       message: "Account created successfully",
-      data: createdAccount,
     };
   }
 

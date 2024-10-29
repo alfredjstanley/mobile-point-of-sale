@@ -11,6 +11,7 @@ const accountSchema = new mongoose.Schema(
     phone: {
       type: String,
       trim: true,
+      default: null,
     },
     email: {
       type: String,
@@ -21,11 +22,6 @@ const accountSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: "",
-    },
-    credit: {
-      type: Number,
-      default: 0,
-      min: [0, "Credit cannot be negative"],
     },
     creditLimit: {
       type: Number,
@@ -44,10 +40,6 @@ const accountSchema = new mongoose.Schema(
       type: String,
       required: [true, "Account type is required"],
       enum: ["CUSTOMER", "SUPPLIER"],
-    },
-    isDebit: {
-      type: Boolean,
-      default: false,
     },
     storeId: {
       type: mongoose.Schema.Types.ObjectId,
