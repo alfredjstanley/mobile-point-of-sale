@@ -14,7 +14,7 @@ module.exports = (app) => {
 
     if (err.message) {
       // send custom success failure response; {required for error handling for mobile team {stupidity}}
-      return res.status(400).json({ success: false, error: err.message });
+      return res.status(200).json({ success: false, error: err.message });
     }
 
     res.status(500).json({ success: false, error: "Internal Server Error" });
