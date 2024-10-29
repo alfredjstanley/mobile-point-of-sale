@@ -1,5 +1,6 @@
 const { authService } = require("../../services/core");
 const { responseHandler } = require("../../../../handlers");
+const { AuthDTO } = require("../../dtos/core");
 
 function validatePhoneNumber(phoneNumber) {
   const phoneRegex = /^\+91\s?[6-9]\d{9}$/;
@@ -29,14 +30,14 @@ function getPhoneNumberAndMpin(req) {
 }
 
 const authController = {
-  async register(req, res) {
+  async register(req, res, next) {
     try {
       const { phoneNumber, mpin } = getPhoneNumberAndMpin(req);
 
       const responseData = await authService.register({ phoneNumber, mpin });
-      responseHandler.sendCreatedResponse(res, responseData);
+      responseHandler.sendCreatedResponse(res, responseData, AuthDTO);
     } catch (error) {
-      responseHandler.sendFailureResponse(res, error.message);
+      next(error);
     }
   },
 

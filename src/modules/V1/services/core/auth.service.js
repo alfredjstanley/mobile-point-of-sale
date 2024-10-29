@@ -98,8 +98,7 @@ const authService = {
     return {
       message: "Merchant registered successfully",
       accessToken: token,
-      userRole: merchant.role,
-      userStatus: merchant.status,
+      merchant,
     };
   },
 

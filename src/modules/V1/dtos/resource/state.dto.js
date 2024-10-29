@@ -34,7 +34,6 @@ class StateDTO {
     this.name = state.name;
     this.code = state.code;
     this.capital = state.capital;
-    // this.area = state.area;
   }
 }
 
