@@ -10,23 +10,18 @@ const storeSchema = new mongoose.Schema(
       ],
       default: null,
     },
-    businessName: {
+    merchantName: {
       type: String,
       trim: true,
       default: null,
-      maxlength: [100, "Business name cannot exceed 100 characters"],
+      maxlength: [100, "Merchant name cannot exceed 100 characters"],
     },
-    legalName: {
-      type: String,
-      trim: true,
-      default: null,
-      maxlength: [100, "Legal name cannot exceed 100 characters"],
-    },
-    taxId: {
-      type: String,
-      trim: true,
+    storeType: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StoreType",
       default: null,
     },
+
     gstNumber: {
       default: null,
       type: String,
@@ -59,22 +54,9 @@ const storeSchema = new mongoose.Schema(
       country: {
         type: String,
         default: "India",
-        default: null,
       },
     },
-    bankDetails: {
-      accountName: { type: String, default: null },
-      accountNumber: { type: String, default: null },
-      bankName: { type: String, default: null },
-      swiftCode: { type: String, default: null },
-    },
-    operationalHours: [
-      {
-        day: { type: String, default: null },
-        openTime: { type: String, default: null },
-        closeTime: { type: String, default: null },
-      },
-    ],
+
     website: {
       type: String,
       match: [
@@ -88,12 +70,9 @@ const storeSchema = new mongoose.Schema(
       required: true,
       enum: ["ACTIVE", "INACTIVE", "PENDING", "SUSPENDED", "DELETED"],
     },
-    logo: { type: String, default: null },
-    description: { type: String, default: null },
-    categories: [String],
+    aboutStore: { type: String, default: null },
   },
   {
-    timestamps: true,
     versionKey: false,
   }
 );
