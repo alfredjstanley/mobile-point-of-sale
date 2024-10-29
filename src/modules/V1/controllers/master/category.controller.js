@@ -1,5 +1,6 @@
 const { categoryService } = require("../../services/master");
 const { responseHandler } = require("../../../../handlers");
+const { CategoryDTO } = require("../../dtos/master");
 
 class CategoryController {
   async createCategory(req, res, next) {
@@ -25,7 +26,7 @@ class CategoryController {
         storeId,
         status: "ACTIVE",
       });
-      responseHandler.sendSuccessResponse(res, categories);
+      responseHandler.sendSuccessResponse(res, categories, CategoryDTO);
     } catch (error) {
       next(error);
     }

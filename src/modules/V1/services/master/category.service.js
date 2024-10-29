@@ -15,7 +15,6 @@ class CategoryService {
 
     return {
       message: "Category created successfully",
-      category: result,
     };
   }
 

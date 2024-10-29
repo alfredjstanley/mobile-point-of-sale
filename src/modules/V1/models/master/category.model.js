@@ -4,17 +4,17 @@ const categorySchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Category name is required"],
+      required: true,
       trim: true,
     },
     code: {
       type: String,
-      required: [true, "Category code is required"],
       trim: true,
     },
     description: {
       type: String,
       trim: true,
+      default: "",
     },
     storeId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -44,5 +44,12 @@ const categorySchema = new mongoose.Schema(
 );
 
 categorySchema.index({ name: 1, storeId: 1, code: 1 }, { unique: true });
+
+categorySchema.pre("save", function (next) {
+  if (this.isModified("name")) {
+    this.code = this.name.trim().toLowerCase().replace(/\s+/g, "-");
+  }
+  next();
+});
 
 module.exports = mongoose.model("Category", categorySchema);
