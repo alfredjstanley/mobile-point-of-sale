@@ -119,16 +119,15 @@ const authService = {
   },
 
   async verifyUser({ phoneNumber }) {
-    const merchant = await AuthUser.findOne({ phoneNumber }).populate(
-      "userProfile"
-    );
+    const merchant = await AuthUser.findOne({
+      phoneNumber,
+      status: "ACTIVE",
+    }).populate("userProfile");
     if (!merchant) throw new Error("Merchant not found");
 
     return {
       message: "Merchant exists",
-      firstName: merchant.userProfile.firstName,
-      username: merchant.userProfile.username,
-      userStatus: merchant.status,
+      name: merchant.userProfile.name,
     };
   },
 
@@ -149,8 +148,7 @@ const authService = {
     return {
       message: "Login successful",
       accessToken: token,
-      userRole: responseData.role,
-      userStatus: responseData.status,
+      merchant: responseData,
     };
   },
 
@@ -167,8 +165,7 @@ const authService = {
 
     const staffProfile = await UserProfile.create({
       username: phoneNumber,
-      firstName: userProfile.firstName,
-      lastName: userProfile.lastName,
+      name: userProfile.name,
     });
 
     const staffData = {
@@ -194,16 +191,17 @@ const authService = {
 
     return {
       message: "Staff added successfully",
-      staffData: staff,
     };
   },
 
   async getStaffsByStoreId(storeId) {
-    return await AuthUser.find({ storeId, createdBy: { $ne: null } });
+    return await AuthUser.find({ storeId, createdBy: { $ne: null } }).populate(
+      "userProfile"
+    );
   },
 
   async getStaffById(staffId) {
-    return await AuthUser.findById(staffId);
+    return await AuthUser.findById(staffId).populate("userProfile");
   },
 };
 

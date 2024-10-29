@@ -12,11 +12,7 @@ async function verifyUser(req, res, next) {
     if (error) return res.status(401).json({ message: "Invalid token" });
 
     try {
-      const { userId, storeId } = await getUserStoreIds(decoded.identifier);
-      if (!userId || !storeId)
-        return res.status(404).json({ message: "User not found" });
-
-      req.identifier = { userId, storeId };
+      req.identifier = await getUserStoreIds(decoded.identifier);
       next();
     } catch (err) {
       return res.status(500).json({ message: err.message });

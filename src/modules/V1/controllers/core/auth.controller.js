@@ -1,6 +1,6 @@
 const { authService } = require("../../services/core");
 const { responseHandler } = require("../../../../handlers");
-const { AuthDTO } = require("../../dtos/core");
+const { AuthDTO, StaffDTO } = require("../../dtos/core");
 
 function validatePhoneNumber(phoneNumber) {
   const phoneRegex = /^\+91\s?[6-9]\d{9}$/;
@@ -41,18 +41,18 @@ const authController = {
     }
   },
 
-  async resetMpin(req, res) {
+  async resetMpin(req, res, next) {
     try {
       const { phoneNumber, mpin } = getPhoneNumberAndMpin(req);
 
       const responseData = await authService.resetMpin({ phoneNumber, mpin });
       responseHandler.sendSuccessResponse(res, responseData);
     } catch (error) {
-      responseHandler.sendFailureResponse(res, error.message);
+      next(error);
     }
   },
 
-  async verifyUser(req, res) {
+  async verifyUser(req, res, next) {
     try {
       const phoneNumber = req.params.phoneNumber;
 
@@ -67,30 +67,25 @@ const authController = {
       const responseData = await authService.verifyUser({ phoneNumber });
       responseHandler.sendAcceptedResponse(res, responseData);
     } catch (error) {
-      responseHandler.sendFailureResponse(res, error.message);
+      next(error);
     }
   },
 
-  async signIn(req, res) {
+  async signIn(req, res, next) {
     try {
       const { phoneNumber, mpin } = getPhoneNumberAndMpin(req);
 
       const responseData = await authService.signIn({ phoneNumber, mpin });
-      responseHandler.sendSuccessResponse(res, responseData);
+      responseHandler.sendSuccessResponse(res, responseData, AuthDTO);
     } catch (error) {
-      responseHandler.sendFailureResponse(res, error.message);
+      next(error);
     }
   },
 
-  async addStaff(req, res) {
+  async addStaff(req, res, next) {
     try {
-      const { phoneNumber, mpin, role, userProfile } = req.body;
+      const { phoneNumber, mpin, role, name } = req.body;
 
-      if (!phoneNumber || !mpin || !role || !userProfile) {
-        throw new Error(
-          "PhoneNumber, MPIN, Store ID, Role, userProfile and Current User required."
-        );
-      }
       if (!validatePhoneNumber(phoneNumber)) {
         throw new Error("Please enter a valid phone number");
       }
@@ -103,7 +98,7 @@ const authController = {
 
       const responseData = await authService.addStaff({
         currentUser: userId,
-        userProfile,
+        userProfile: { name },
         phoneNumber,
         storeId,
         mpin,
@@ -111,27 +106,27 @@ const authController = {
       });
       responseHandler.sendCreatedResponse(res, responseData);
     } catch (error) {
-      responseHandler.sendFailureResponse(res, error.message);
+      next(error);
     }
   },
 
-  async getStaffs(req, res) {
+  async getStaffs(req, res, next) {
     try {
       const { storeId } = req.identifier;
 
       const responseData = await authService.getStaffsByStoreId(storeId);
-      responseHandler.sendSuccessResponse(res, responseData);
+      responseHandler.sendSuccessResponse(res, responseData, StaffDTO);
     } catch (error) {
-      responseHandler.sendFailureResponse(res, error.message);
+      next(error);
     }
   },
 
-  async getStaffById(req, res) {
+  async getStaffById(req, res, next) {
     try {
       const responseData = await authService.getStaffById(req.params.id);
-      responseHandler.sendSuccessResponse(res, responseData);
+      responseHandler.sendSuccessResponse(res, responseData, StaffDTO);
     } catch (error) {
-      responseHandler.sendFailureResponse(res, error.message);
+      next(error);
     }
   },
 };

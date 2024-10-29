@@ -8,17 +8,11 @@ const userProfileSchema = new mongoose.Schema(
       unique: true,
       maxlength: [25, "Username cannot be more than 25 characters"],
     },
-    firstName: {
+    name: {
       type: String,
       trim: true,
       default: null,
-      maxlength: [20, "First name cannot be more than 20 characters"],
-    },
-    lastName: {
-      type: String,
-      trim: true,
-      default: null,
-      maxlength: [20, "Last name cannot be more than 20 characters"],
+      maxlength: [30, "Name cannot be more than 30 characters"],
     },
     gender: {
       type: String,
@@ -42,24 +36,6 @@ const userProfileSchema = new mongoose.Schema(
     emailVerified: {
       type: Boolean,
       default: false,
-    },
-    address: {
-      city: { type: String, default: null },
-      district: {
-        type: String,
-        default: null,
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "District",
-      },
-      state: {
-        type: String,
-        default: null,
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "State",
-      },
-      street: { type: String, default: null },
-      postalCode: { type: String, default: null },
-      country: { type: String, default: "IN" },
     },
   },
   {
