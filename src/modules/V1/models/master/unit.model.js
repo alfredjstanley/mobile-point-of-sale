@@ -1,46 +1,50 @@
 const mongoose = require("mongoose");
+const initialunits = require("../../misc/migrations/initial/unit.migration");
 
 const unitSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Unit name is required"],
+      required: true,
       trim: true,
-      unique: true,
     },
     unitCode: {
       type: String,
       required: [true, "Unit code is required"],
       trim: true,
-      unique: true,
-    },
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      ref: "User",
     },
     storeId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
       ref: "Store",
-    },
-    modifiedBy: {
-      type: mongoose.Schema.Types.ObjectId,
       default: null,
-      ref: "User",
     },
-    status: {
+    description: {
       type: String,
-      enum: ["ACTIVE", "INACTIVE"],
-      default: "ACTIVE",
+      default: "",
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
     },
   },
-  {
-    timestamps: true,
-    versionKey: false,
-  }
+  { versionKey: false }
 );
 
 unitSchema.index({ name: 1, storeId: 1, unitCode: 1 }, { unique: true });
 
-module.exports = mongoose.model("Unit", unitSchema);
+const Unit = mongoose.model("Unit", unitSchema);
+
+// Insert initial documents
+(async () => {
+  try {
+    const count = await Unit.countDocuments({});
+    if (count === 0) {
+      await Unit.insertMany(initialunits);
+      console.log("Initial 'Units' data migrated");
+    }
+  } catch (error) {
+    console.error("Error inserting initial units:", error);
+  }
+})();
+
+module.exports = Unit;

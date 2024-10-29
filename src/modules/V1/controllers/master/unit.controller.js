@@ -1,6 +1,3 @@
-const { getStoreId, getUserStoreIds } =
-  require("../../services/core").authService;
-
 const { unitService } = require("../../services/master");
 const { responseHandler } = require("../../../../handlers");
 
@@ -8,7 +5,7 @@ class UnitController {
   async createUnit(req, res, next) {
     try {
       const data = req.body;
-      const { storeId, userId } = await getUserStoreIds(req.identifier);
+      const { storeId, userId } = req.identifier;
 
       data.storeId = storeId;
       data.createdBy = userId;
@@ -23,10 +20,10 @@ class UnitController {
 
   async getUnits(req, res, next) {
     try {
-      const { storeId } = await getStoreId(req.identifier);
+      const { storeId } = req.identifier;
       const units = await unitService.getUnits({
-        storeId,
-        status: "ACTIVE",
+        $or: [{ storeId }, { storeId: null }],
+        isActive: true,
       });
       responseHandler.sendSuccessResponse(res, units);
     } catch (error) {
@@ -60,7 +57,7 @@ class UnitController {
         return responseHandler.sendFailureResponse(res, "Unit ID is required");
       }
 
-      const { storeId } = await getStoreId(req.identifier);
+      const { storeId } = req.identifier;
       data.storeId = storeId;
 
       const unit = await unitService.updateUnit(unitId, data);
@@ -78,7 +75,7 @@ class UnitController {
         return responseHandler.sendFailureResponse(res, "Unit ID is required");
       }
 
-      const { storeId } = await getStoreId(req.identifier);
+      const { storeId } = req.identifier;
 
       await unitService.deleteUnit(unitId, storeId);
 
