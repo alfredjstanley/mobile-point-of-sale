@@ -1,14 +1,11 @@
 const { categoryService } = require("../../services/master");
 const { responseHandler } = require("../../../../handlers");
 
-const { getUserId, getStoreId, getUserStoreIds } =
-  require("../../services/core").authService;
-
 class CategoryController {
   async createCategory(req, res, next) {
     try {
       const data = req.body;
-      const { storeId, userId } = await getUserStoreIds(req.identifier);
+      const { storeId, userId } = req.identifier;
 
       data.storeId = storeId;
       data.createdBy = userId;
@@ -23,7 +20,7 @@ class CategoryController {
 
   async getCategories(req, res, next) {
     try {
-      const { storeId } = await getStoreId(req.identifier);
+      const { storeId } = req.identifier;
       const categories = await categoryService.getCategories({
         storeId,
         status: "ACTIVE",
@@ -67,7 +64,7 @@ class CategoryController {
           "Category ID is required"
         );
       }
-      const { userId } = await getUserId(req.identifier);
+      const { userId } = req.identifier;
       data.modifiedBy = userId;
 
       const category = await categoryService.updateCategory(categoryId, data);
