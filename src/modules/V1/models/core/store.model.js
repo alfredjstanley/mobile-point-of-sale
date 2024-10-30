@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const storeSchema = new mongoose.Schema(
   {
+    storeName: {
+      type: String,
+      trim: true,
+      default: null,
+      maxlength: [100, "Store name cannot exceed 100 characters"],
+    },
     phoneNumber: {
       type: String,
       match: [
