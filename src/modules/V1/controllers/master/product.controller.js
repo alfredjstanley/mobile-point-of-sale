@@ -1,14 +1,12 @@
-const { getUserId, getStoreId, getUserStoreIds } =
-  require("../../services/core").authService;
-
 const { productService } = require("../../services/master");
 const { responseHandler } = require("../../../../handlers");
+const { ProductDTO } = require("../../dtos/master");
 
 class ProductController {
   async createProduct(req, res, next) {
     try {
       const data = req.body;
-      const { storeId, userId } = await getUserStoreIds(req.identifier);
+      const { storeId, userId } = req.identifier;
 
       data.storeId = storeId;
       data.createdBy = userId;
@@ -23,12 +21,12 @@ class ProductController {
 
   async getProducts(req, res, next) {
     try {
-      const { storeId } = await getStoreId(req.identifier);
+      const { storeId } = req.identifier;
       const products = await productService.getProducts({
         storeId,
         status: "ACTIVE",
       });
-      responseHandler.sendSuccessResponse(res, products);
+      responseHandler.sendSuccessResponse(res, products, ProductDTO);
     } catch (error) {
       next(error);
     }

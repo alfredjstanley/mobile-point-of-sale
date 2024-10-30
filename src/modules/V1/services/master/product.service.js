@@ -6,14 +6,11 @@ class ProductService {
     await product.save();
     return {
       message: "Product created successfully",
-      product,
     };
   }
 
   async getProducts(filter = {}) {
-    return await Product.find(filter, { storeId: 0 }).populate(
-      "category unit tax"
-    );
+    return await Product.find(filter, { storeId: 0 }).populate("category unit tax");
   }
 
   async getProductById(id) {
@@ -21,11 +18,10 @@ class ProductService {
   }
 
   async updateProduct(id, data) {
-    const result = await Product.findByIdAndUpdate(id, data, { new: true });
+    await Product.findByIdAndUpdate(id, data);
 
     return {
       message: "Product updated",
-      updatedProduct: result,
     };
   }
 

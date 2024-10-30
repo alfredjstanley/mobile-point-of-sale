@@ -7,30 +7,11 @@ const productSchema = new mongoose.Schema(
       required: [true, "Product name is required"],
       trim: true,
     },
-    productCode: {
-      type: String,
-      required: [true, "Product code is required"],
-      trim: true,
-      unique: true,
-    },
-    description: {
-      type: String,
-      trim: true,
-      default: "",
-    },
     sellingPrice: {
       type: Number,
       required: [true, "Selling price is required"],
     },
-    purchaseCost: {
-      type: Number,
-      required: [true, "Purchase cost is required"],
-    },
     stockQuantity: {
-      type: Number,
-      default: 0,
-    },
-    margin: {
       type: Number,
       default: 0,
     },
@@ -45,14 +26,11 @@ const productSchema = new mongoose.Schema(
       required: [true, "Unit is required"],
     },
     tax: {
-      type: Number,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Tax",
       required: [true, "Tax is required"],
     },
     taxIncluded: {
-      type: Boolean,
-      default: false,
-    },
-    isInterTax: {
       type: Boolean,
       default: false,
     },
@@ -82,14 +60,6 @@ const productSchema = new mongoose.Schema(
     versionKey: false,
   }
 );
-productSchema.index({ name: 1, storeId: 1, productCode: 1 }, { unique: true });
-
-// Pre-save hook to calculate margin
-productSchema.pre("save", function (next) {
-  if (this.sellingPrice != null && this.purchaseCost != null) {
-    this.margin = this.sellingPrice - this.purchaseCost;
-  }
-  next();
-});
+productSchema.index({ name: 1, storeId: 1 }, { unique: true });
 
 module.exports = mongoose.model("Product", productSchema);
