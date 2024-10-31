@@ -11,6 +11,11 @@ const saleDetailSchema = new mongoose.Schema({
     ref: "Unit",
     required: [true, "Unit is required"],
   },
+  tax: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Tax",
+    required: [true, "Tax is required"],
+  },
   quantity: {
     type: Number,
     required: [true, "Quantity is required"],
@@ -87,17 +92,12 @@ const saleSchema = new mongoose.Schema(
     },
     saleType: {
       type: String,
-      enum: ["RETAIL", "WHOLESALE"],
+      enum: ["NORMAL", "QUICK-SALE", "RETURN", "HYBRID"],
       required: [true, "Sale type is required"],
-    },
-    isCredit: {
-      // isCredit is a boolean field that indicates whether the sale is on credit or not.
-      type: Boolean,
-      default: false,
     },
     paymentType: {
       type: String,
-      enum: ["CASH", "CARD", "ONLINE", "CREDIT"],
+      enum: ["CASH", "CARD", "UPI", "CREDIT"],
       required: [true, "Payment type is required"],
     },
 
@@ -112,5 +112,39 @@ const saleSchema = new mongoose.Schema(
     versionKey: false,
   }
 );
+
+saleSchema.pre("save", async function (next) {
+  const Product = mongoose.model("Product");
+  const Account = mongoose.model("Account");
+  const Unit = mongoose.model("Unit");
+  const Tax = mongoose.model("Tax");
+
+  // Validate the main fields in the sale document
+  const isCustomerValid = await Account.exists({ _id: this.customer });
+  if (!isCustomerValid) {
+    return next(new Error("Invalid Customer ID"));
+  }
+
+  // Validate each item in the saleDetails array
+  const detailValidationPromises = this.saleDetails.map(async (detail) => {
+    const [isProductValid, isUnitValid] = await Promise.all([
+      Product.exists({ _id: detail.item }),
+      Unit.exists({ _id: detail.unit }),
+      Tax.exists({ _id: detail.tax }),
+    ]);
+
+    if (!isProductValid) throw new Error("Invalid Product ID");
+    if (!isUnitValid) throw new Error("Invalid Unit ID");
+    if (!isTaxValid) throw new Error("Invalid Tax ID");
+  });
+
+  // Wait for all validations to complete
+  try {
+    await Promise.all(detailValidationPromises);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = mongoose.model("Sale", saleSchema);
