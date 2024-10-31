@@ -20,7 +20,9 @@ class ProductService {
   }
 
   async getProductsByCategory(categoryId) {
-    return await Product.find({ category: categoryId });
+    return await Product.find({ category: categoryId }).populate(
+      "category unit tax"
+    );
   }
 
   async updateProduct(id, data) {
