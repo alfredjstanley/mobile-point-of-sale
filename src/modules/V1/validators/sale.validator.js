@@ -25,12 +25,12 @@ exports.createSaleValidator = [
   body("saleType")
     .notEmpty()
     .withMessage("Sale type is required")
-    .isIn(["RETAIL", "WHOLESALE"])
-    .withMessage("Sale type must be RETAIL or WHOLESALE"),
+    .isIn(["NORMAL", "QUICK-SALE", "RETURN", "HYBRID"])
+    .withMessage("Sale type must be NORMAL, HYBRID, QUICK-SALE or RETURN"),
   body("paymentType")
     .notEmpty()
     .withMessage("Payment type is required")
-    .isIn(["CASH", "CARD", "ONLINE", "CREDIT"])
+    .isIn(["CASH", "CARD", "UPI", "CREDIT"])
     .withMessage("Invalid payment type"),
   body("saleDetails")
     .isArray({ min: 1 })
@@ -45,6 +45,11 @@ exports.createSaleValidator = [
     .withMessage("Unit is required")
     .isMongoId()
     .withMessage("Unit must be a valid ID"),
+  body("saleDetails.*.tax")
+    .notEmpty()
+    .withMessage("product tax is required")
+    .isMongoId()
+    .withMessage("Product tax must be a valid ID"),
   body("saleDetails.*.quantity")
     .notEmpty()
     .withMessage("Quantity is required")
@@ -60,9 +65,9 @@ exports.createSaleValidator = [
     .withMessage("Tax amount is required")
     .isNumeric()
     .withMessage("Tax amount must be a number"),
-  body("saleDetails.*.taxId")
+  body("saleDetails.*.taxAmount")
     .notEmpty()
-    .withMessage("taxId is required")
-    .isMongoId()
-    .withMessage("Tax ID must be a valid ID"),
+    .withMessage("taxAmount is required")
+    .isNumeric()
+    .withMessage("Tax amount must be a number"),
 ];
