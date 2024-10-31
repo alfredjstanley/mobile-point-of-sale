@@ -52,6 +52,22 @@ class ProductController {
     }
   }
 
+  async getProductsByCategory(req, res, next) {
+    try {
+      const categoryId = req.params.id;
+      if (!categoryId) {
+        return responseHandler.sendFailureResponse(
+          res,
+          "Category ID is required"
+        );
+      }
+      const products = await productService.getProductsByCategory(categoryId);
+      responseHandler.sendSuccessResponse(res, products, ProductDTO);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async updateProduct(req, res, next) {
     try {
       const data = req.body;
