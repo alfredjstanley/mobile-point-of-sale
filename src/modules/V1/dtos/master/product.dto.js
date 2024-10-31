@@ -63,7 +63,11 @@ class ProductDTO {
     this.unitId = product.unit._id;
     this.unitName = product.unit.name;
 
-    this.tax = product.tax;
+    this.tax = {
+      id: product.tax._id,
+      name: product.tax.name,
+      rate: product.tax.rate,
+    };
     this.taxIncluded = product.taxIncluded;
   }
 }
