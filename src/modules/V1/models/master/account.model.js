@@ -56,6 +56,11 @@ const accountSchema = new mongoose.Schema(
       ref: "UserAuth",
       default: null,
     },
+    status: {
+      type: String,
+      default: "ACTIVE",
+      enum: ["ACTIVE", "INACTIVE"],
+    },
   },
   {
     timestamps: true,

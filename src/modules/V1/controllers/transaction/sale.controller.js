@@ -8,7 +8,7 @@ class SaleController {
   async createSale(req, res, next) {
     try {
       const data = req.body;
-      const { storeId, userId } = await getUserStoreIds(req.identifier);
+      const { storeId, userId } = req.identifier;
 
       data.storeId = storeId;
       data.createdBy = userId;
@@ -23,7 +23,7 @@ class SaleController {
 
   async getSales(req, res, next) {
     try {
-      const { storeId } = await getStoreId(req.identifier);
+      const { storeId } = req.identifier;
       const sales = await saleService.getSales({
         storeId,
       });

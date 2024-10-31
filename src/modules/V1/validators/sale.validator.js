@@ -22,52 +22,49 @@ exports.createSaleValidator = [
     .withMessage("Tax amount is required")
     .isNumeric()
     .withMessage("Tax amount must be a number"),
-  body("saleType")
-    .notEmpty()
-    .withMessage("Sale type is required")
-    .isIn(["NORMAL", "QUICK-SALE", "RETURN", "HYBRID"])
-    .withMessage("Sale type must be NORMAL, HYBRID, QUICK-SALE or RETURN"),
   body("paymentType")
     .notEmpty()
     .withMessage("Payment type is required")
     .isIn(["CASH", "CARD", "UPI", "CREDIT"])
     .withMessage("Invalid payment type"),
   body("saleDetails")
+    .optional()
     .isArray({ min: 1 })
     .withMessage("Sale details must be an array with at least one item"),
   body("saleDetails.*.item")
+    .optional()
     .notEmpty()
     .withMessage("Product is required")
     .isMongoId()
     .withMessage("Product must be a valid ID"),
   body("saleDetails.*.unit")
+    .optional()
     .notEmpty()
     .withMessage("Unit is required")
     .isMongoId()
     .withMessage("Unit must be a valid ID"),
   body("saleDetails.*.tax")
+    .optional()
     .notEmpty()
-    .withMessage("product tax is required")
+    .withMessage("Product tax is required")
     .isMongoId()
     .withMessage("Product tax must be a valid ID"),
   body("saleDetails.*.quantity")
+    .optional()
     .notEmpty()
     .withMessage("Quantity is required")
     .isNumeric()
     .withMessage("Quantity must be a number"),
   body("saleDetails.*.totalAmount")
+    .optional()
     .notEmpty()
     .withMessage("Total amount is required")
     .isNumeric()
     .withMessage("Total amount must be a number"),
   body("saleDetails.*.taxAmount")
+    .optional()
     .notEmpty()
     .withMessage("Tax amount is required")
-    .isNumeric()
-    .withMessage("Tax amount must be a number"),
-  body("saleDetails.*.taxAmount")
-    .notEmpty()
-    .withMessage("taxAmount is required")
     .isNumeric()
     .withMessage("Tax amount must be a number"),
 ];

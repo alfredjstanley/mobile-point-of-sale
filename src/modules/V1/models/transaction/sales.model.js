@@ -90,11 +90,6 @@ const saleSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    saleType: {
-      type: String,
-      enum: ["NORMAL", "QUICK-SALE", "RETURN", "HYBRID"],
-      required: [true, "Sale type is required"],
-    },
     paymentType: {
       type: String,
       enum: ["CASH", "CARD", "UPI", "CREDIT"],
@@ -120,22 +115,27 @@ saleSchema.pre("save", async function (next) {
   const Tax = mongoose.model("Tax");
 
   // Validate the main fields in the sale document
-  const isCustomerValid = await Account.exists({ _id: this.customer });
+
+  const isCustomerValid = await Account.exists({
+    _id: this.customer,
+    storeId: this.storeId,
+  });
   if (!isCustomerValid) {
     return next(new Error("Invalid Customer ID"));
   }
 
   // Validate each item in the saleDetails array
   const detailValidationPromises = this.saleDetails.map(async (detail) => {
-    const [isProductValid, isUnitValid] = await Promise.all([
-      Product.exists({ _id: detail.item }),
+    const storeId = this.storeId;
+    const [isProductValid, isTaxValid, isUnitValid] = await Promise.all([
+      Product.exists({ _id: detail.item, storeId }),
       Unit.exists({ _id: detail.unit }),
       Tax.exists({ _id: detail.tax }),
     ]);
 
-    if (!isProductValid) throw new Error("Invalid Product ID");
-    if (!isUnitValid) throw new Error("Invalid Unit ID");
-    if (!isTaxValid) throw new Error("Invalid Tax ID");
+    if (!isProductValid) throw new Error("Invalid Product ID found");
+    if (!isUnitValid) throw new Error("Invalid Unit ID found");
+    if (!isTaxValid) throw new Error("Invalid Tax ID found");
   });
 
   // Wait for all validations to complete
