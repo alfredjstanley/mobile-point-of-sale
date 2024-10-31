@@ -11,7 +11,7 @@ class CategoryService {
     }
 
     const category = new Category(data);
-    const result = await category.save();
+    await category.save();
 
     return {
       message: "Category created successfully",
@@ -19,7 +19,23 @@ class CategoryService {
   }
 
   async getCategories(filter = {}) {
-    return await Category.find(filter, { storeId: 0 });
+    return await Category.aggregate([
+      { $match: filter },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "category",
+          as: "products",
+          pipeline: [{ $project: { _id: 1 } }],
+        },
+      },
+      {
+        $addFields: {
+          productCount: { $size: "$products" },
+        },
+      },
+    ]);
   }
 
   async getCategoryById(id) {

@@ -14,18 +14,20 @@
  * @property {string} updatedAt - Timestamp when the category was last updated.
  *
  * @example
- * {
- *   "id": "6720d5d52896d05d3e9fc51e",
- *   "name": "Toileteries",
- *   "code": "Toileteries",
- *   "description": "Category for Toileteries products.",
- *   "storeId": "6720d41f1243d160874fd4b5",
- *   "createdBy": "6720d41f1243d160874fd4b7",
- *   "modifiedBy": null,
- *   "status": "ACTIVE",
- *   "createdAt": "2024-10-29T12:32:21.308Z",
- *   "updatedAt": "2024-10-29T12:32:21.308Z"
- * }
+ {
+    _id: new ObjectId('6723279daf8d43d1f873be4c'),
+    name: 'Office Supplies',
+    description: 'Category for stationery and office-related items.',
+    storeId: new ObjectId('6723279aaf8d43d1f873bdf1'),
+    createdBy: new ObjectId('6723279aaf8d43d1f873bdf3'),
+    modifiedBy: null,
+    status: 'ACTIVE',
+    createdAt: 2024-10-31T06:45:49.131Z,
+    updatedAt: 2024-10-31T06:45:49.131Z,
+    code: 'office-supplies',
+    products: [ [Object], [Object] ],
+    productCount: 2
+}
  */
 
 class CategoryDTO {
@@ -49,6 +51,7 @@ class CategoryDTO {
     this.name = category.name;
     this.code = category.code;
     this.description = category.description;
+    this.productCount = category.productCount;
   }
 }
 
