@@ -29,7 +29,7 @@ exports.createSaleValidator = [
     .withMessage("Invalid payment type"),
   body("saleDetails")
     .optional()
-    .isArray({ min: 1 })
+    .isArray()
     .withMessage("Sale details must be an array with at least one item"),
   body("saleDetails.*.item")
     .optional()

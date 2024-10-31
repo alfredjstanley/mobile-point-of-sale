@@ -1,5 +1,6 @@
 const {
   Sale,
+  QuickSale,
   TaxTransaction,
   StockTransaction,
   AccountTransaction,
@@ -20,9 +21,6 @@ class SaleService {
       const customer = await Account.findById(data.customer).session(session);
       if (!customer) throw new Error("Invalid customer ID");
 
-      const sale = new Sale(data);
-      await sale.save({ session });
-
       // Handle credit if applicable
       if (data.paymentType === "CREDIT") {
         customer.balance += data.totalAmount;
@@ -30,6 +28,9 @@ class SaleService {
       }
 
       if (data.saleDetails.length > 0) {
+        const sale = new Sale(data);
+        await sale.save({ session });
+
         for (const detail of data.saleDetails) {
           const product = await Product.findById(detail.item).session(session);
           if (!product) {
@@ -90,43 +91,37 @@ class SaleService {
         }
       }
 
-      // Process quick sale details (if present)
-      // if (data.quickSaleDetails) {
-      //   for (const quickDetail of data.quickSaleDetails) {
-      //     // Directly process the item without product reference
-      //     const quickStockTransaction = new StockTransaction({
-      //       transactionType: "QUICK_SALE",
-      //       transactionMode: "OUT",
-      //       transactionId: sale._id,
-      //       productName: quickDetail.itemName, // No product reference here
-      //       transactionQuantity: quickDetail.quantity,
-      //       amount: quickDetail.amount,
-      //       accountId: customer._id,
-      //       accountName: customer.name,
-      //       transactionDate: data.dateOfInvoice,
-      //       createdBy: data.createdBy,
-      //     });
-      //     await quickStockTransaction.save({ session });
-      //   }
-      // }
+      if (data.quickSaleDetails.length > 0) {
+        const quickSaleData = {
+          saleInvoiceId: data.saleInvoiceId,
+          storeId: data.storeId,
+          customer: data.customer,
+          dateOfInvoice: data.dateOfInvoice,
+          totalAmount: data.totalAmount,
+          paymentType: data.paymentType,
+          quickSaleDetails: data.quickSaleDetails,
+          createdBy: data.createdBy,
+        };
+        const quickSale = new QuickSale(quickSaleData);
+        await quickSale.save({ session });
+      }
 
-      // Create an account transaction (common to both sale types)
-      // const accountTransaction = new AccountTransaction({
-      //   documentNo: data.documentNo,
-      //   transactionType: "SALE",
-      //   sAccountId: "671a4b97f46d70fab302c52f",
-      //   dAccountId: "671a4b97f46d70fab302c52f",
-      //   amount: data.totalAmount,
-      //   accountSourceType: "CREDIT",
-      //   narration: `Sale Invoice ${data.saleInvoiceId}`,
-      //   transactionDate: data.dateOfInvoice,
-      //   createdBy: data.createdBy,
-      // });
-      // await accountTransaction.save({ session });
+      const accountTransaction = new AccountTransaction({
+        documentNo: data.saleInvoiceId,
+        transactionType: TRANSACTION_TYPE,
+        sAccountId: customer._id,
+        dAccountId: "671a4b97f46d70fab302c52f",
+        amount: data.totalAmount,
+        accountSourceType: data.paymentType,
+        narration: `Sale Invoice ${data.saleInvoiceId}`,
+        transactionDate: data.dateOfInvoice,
+        createdBy: data.createdBy,
+      });
+      await accountTransaction.save({ session });
 
       await session.commitTransaction();
       session.endSession();
-      return sale;
+      return {message: "Sale created successfully"};
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
