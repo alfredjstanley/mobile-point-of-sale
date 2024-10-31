@@ -67,6 +67,7 @@ class ProductDTO {
       id: product.tax._id,
       name: product.tax.name,
       rate: product.tax.rate,
+      description: product.tax.description,
     };
     this.taxIncluded = product.taxIncluded;
   }
