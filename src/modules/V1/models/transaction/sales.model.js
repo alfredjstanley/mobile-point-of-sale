@@ -130,18 +130,23 @@ saleSchema.pre("save", async function (next) {
   }
 
   // Validate each item in the saleDetails array
-  const detailValidationPromises = this.saleDetails.map(async (detail) => {
-    const storeId = this.storeId;
-    const [isProductValid, isTaxValid, isUnitValid] = await Promise.all([
-      Product.exists({ _id: detail.item, storeId }),
-      Unit.exists({ _id: detail.unit }),
-      Tax.exists({ _id: detail.tax }),
-    ]);
+  const detailValidationPromises = this.saleDetails.map(
+    async (detail, index) => {
+      const storeId = this.storeId;
+      const [isProductValid, isUnitValid, isTaxValid] = await Promise.all([
+        Product.exists({ _id: detail.item, storeId }),
+        Unit.exists({ _id: detail.unit }),
+        Tax.exists({ _id: detail.tax }),
+      ]);
 
-    if (!isProductValid) throw new Error("Invalid Product ID found");
-    if (!isUnitValid) throw new Error("Invalid Unit ID found");
-    if (!isTaxValid) throw new Error("Invalid Tax ID found");
-  });
+      if (!isProductValid)
+        throw new Error(`Invalid Product ID found at index ${index}`);
+      if (!isUnitValid)
+        throw new Error(`Invalid Unit ID found at index ${index}`);
+      if (!isTaxValid)
+        throw new Error(`Invalid Tax ID found at index ${index}`);
+    }
+  );
 
   // Wait for all validations to complete
   try {
