@@ -21,9 +21,5 @@ exports.createProductValidator = [
     .withMessage("Unit is required")
     .isMongoId()
     .withMessage("Unit must be a valid ID"),
-  body("tax")
-    .notEmpty()
-    .withMessage("Tax is required")
-    .isMongoId()
-    .withMessage("Unit must be a valid ID"),
+  body("tax").notEmpty().withMessage("Tax is required"),
 ];

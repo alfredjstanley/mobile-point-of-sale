@@ -27,6 +27,13 @@ class SaleService {
         await customer.save({ session });
       }
 
+      data.saleType =
+        data.saleDetails.length > 0 && data.quickSaleDetails.length > 0
+          ? "Hybrid"
+          : data.saleDetails.length > 0
+          ? "Normal"
+          : "Quick-Sale";
+
       if (data.saleDetails.length > 0) {
         const sale = new Sale(data);
         await sale.save({ session });
@@ -121,7 +128,7 @@ class SaleService {
 
       await session.commitTransaction();
       session.endSession();
-      return {message: "Sale created successfully"};
+      return { message: "Sale created successfully" };
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
@@ -132,9 +139,9 @@ class SaleService {
   async getSales(filter = {}) {
     return await Sale.find(filter)
       .populate("customer")
-      .populate("createdBy")
       .populate("saleDetails.item")
-      .populate("saleDetails.unit");
+      .populate("saleDetails.unit")
+      .populate("saleDetails.tax");
   }
 
   async getSaleById(id) {
@@ -142,6 +149,7 @@ class SaleService {
       .populate("customer")
       .populate("createdBy")
       .populate("saleDetails.item")
+      .populate("saleDetails.unit")
       .populate("saleDetails.unit");
   }
 }

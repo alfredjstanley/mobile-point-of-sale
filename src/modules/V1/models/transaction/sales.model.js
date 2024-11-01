@@ -59,6 +59,11 @@ const saleSchema = new mongoose.Schema(
       ref: "Account",
       required: [true, "Customer is required"],
     },
+    saleType: {
+      type: String,
+      enum: ["Normal", "Quick-Sale", "Hybrid"],
+      required: [true, "Sale type is required"],
+    },
     dateOfInvoice: {
       type: Date,
       required: [true, "Date of invoice is required"],
