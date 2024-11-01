@@ -65,31 +65,18 @@ productSchema.index({ name: 1, storeId: 1 }, { unique: true });
 productSchema.pre("save", async function (next) {
   const Category = mongoose.model("Category");
   const Unit = mongoose.model("Unit");
-
-  const [isCategoryValid, isUnitValid] = await Promise.all([
-    Category.exists({ _id: this.category, storeId: this.storeId }),
-    Unit.exists({ _id: this.unit }),
-  ]);
-
-  if (!isCategoryValid) {
-    return next(new Error("Invalid Category ID"));
-  }
-
-  if (!isUnitValid) {
-    return next(new Error("Invalid Unit ID"));
-  }
-
   const Tax = mongoose.model("Tax");
 
-  if (this.tax === "GST-0") {
-    const tax = await Tax.findOne({ name: "GST-0" });
-    this.tax = tax._id;
-  } else {
-    const isTaxValid = await Tax.exists({ _id: this.tax });
-    if (!isTaxValid) {
-      return next(new Error("Invalid Tax ID"));
-    }
-  }
+  const [isCategoryValid, isUnitValid, isTaxValid] = await Promise.all([
+    Category.exists({ _id: this.category, storeId: this.storeId }),
+    Unit.exists({ _id: this.unit }),
+    Tax.exists({ _id: this.tax }),
+  ]);
+
+  if (!isCategoryValid) return next(new Error("Invalid Category ID"));
+  if (!isUnitValid) return next(new Error("Invalid Unit ID"));
+  if (!isTaxValid) return next(new Error("Invalid Tax ID"));
+
   next();
 });
 

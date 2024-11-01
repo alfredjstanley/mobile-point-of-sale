@@ -1,7 +1,12 @@
 const { Product } = require("../../models/master");
+const { Tax } = require("../../models/resource");
 
 class ProductService {
   async createProduct(productData) {
+    if (productData.tax == "GST-0") {
+      const tax = await Tax.findOne({ name: "GST-0" });
+      productData.tax = tax._id;
+    }
     const product = new Product(productData);
     await product.save();
     return {
