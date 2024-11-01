@@ -79,7 +79,7 @@ class ProductController {
           "Product ID is required"
         );
       }
-      const { userId } = await getUserId(req.identifier);
+      const { userId } = req.identifier;
       data.modifiedBy = userId;
 
       const product = await productService.updateProduct(productId, data);
