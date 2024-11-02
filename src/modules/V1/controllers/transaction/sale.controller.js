@@ -1,9 +1,6 @@
 const { saleService } = require("../../services/transaction");
 const { responseHandler } = require("../../../../handlers");
 
-const { getStoreId, getUserStoreIds } =
-  require("../../services/core").authService;
-
 class SaleController {
   async createSale(req, res, next) {
     try {
@@ -24,7 +21,7 @@ class SaleController {
   async getSales(req, res, next) {
     try {
       const { storeId } = req.identifier;
-      const sales = await saleService.getSales({
+      const sales = await saleService.getAllSales({
         storeId,
       });
       responseHandler.sendSuccessResponse(res, sales);
@@ -33,7 +30,6 @@ class SaleController {
     }
   }
 
-  // Get a sale by ID
   async getSaleById(req, res, next) {
     try {
       const saleId = req.params.id;

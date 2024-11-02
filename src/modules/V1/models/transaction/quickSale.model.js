@@ -66,4 +66,5 @@ quickSaleSchema.pre("save", async function (next) {
   next();
 });
 
+quickSaleSchema.index({ storeId: 1 });
 module.exports = mongoose.model("QuickSale", quickSaleSchema);

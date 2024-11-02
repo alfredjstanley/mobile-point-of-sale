@@ -157,4 +157,6 @@ saleSchema.pre("save", async function (next) {
   }
 });
 
+saleSchema.index({ storeId: 1 });
+
 module.exports = mongoose.model("Sale", saleSchema);

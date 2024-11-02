@@ -5,6 +5,7 @@ const {
   StockTransaction,
   AccountTransaction,
 } = require("../../models/transaction");
+
 const { Tax } = require("../../models/resource");
 const { Product, Account, Unit } = require("../../models/master");
 
@@ -135,8 +136,88 @@ class SaleService {
       throw error;
     }
   }
+  async getAllSales(filter = {}) {
+    try {
+      const sales = await Sale.aggregate([
+        { $match: filter },
+        { $addFields: { source: "Sale" } }, // Add a field to differentiate Sale and QuickSale entries
+        {
+          $unionWith: {
+            coll: "quicksales",
+            pipeline: [
+              { $match: filter },
+              { $addFields: { source: "QuickSale" } },
+            ],
+          },
+        },
+        // Group by saleInvoiceId to merge entries with the same saleInvoiceId
+        {
+          $group: {
+            _id: "$saleInvoiceId",
+            sales: { $push: "$$ROOT" },
+          },
+        },
+        // Optionally, unwind the sales array if you prefer flat results
+      ]).exec();
 
-  async getSales(filter = {}) {
+      // Now, for each grouped sale, process the merging of Sale and QuickSale entries
+      const mergedSales = sales.map((group) => {
+        const { _id: saleInvoiceId, sales } = group;
+
+        // Separate entries from Sale and QuickSale
+        const saleEntry = sales.find((s) => s.source === "Sale");
+        const quickSaleEntry = sales.find((s) => s.source === "QuickSale");
+
+        // Merge the entries as needed
+        const mergedEntry = {
+          saleInvoiceId,
+          storeId: saleEntry ? saleEntry.storeId : quickSaleEntry.storeId,
+          customer: saleEntry ? saleEntry.customer : quickSaleEntry.customer,
+          dateOfInvoice: saleEntry
+            ? saleEntry.dateOfInvoice
+            : quickSaleEntry.dateOfInvoice,
+          totalAmount:
+            (saleEntry ? saleEntry.totalAmount : 0) +
+            (quickSaleEntry ? quickSaleEntry.totalAmount : 0),
+          paymentType: saleEntry
+            ? saleEntry.paymentType
+            : quickSaleEntry.paymentType,
+          saleType: saleEntry ? saleEntry.saleType : "Quick-Sale",
+          // Merge other fields as necessary
+          saleDetails: saleEntry ? saleEntry.saleDetails : [],
+          quickSaleDetails: quickSaleEntry
+            ? quickSaleEntry.quickSaleDetails
+            : [],
+          // Include other fields from both entries as needed
+        };
+
+        return mergedEntry;
+      });
+
+      return mergedSales;
+
+      // Populate references if needed (since aggregation doesn't populate automatically)
+      // For populating after aggregation, you can use Mongoose's `Model.populate()` method
+      // const options = [
+      //   { path: "storeId", model: "Store" },
+      //   { path: "customer", model: "Account" },
+      //   { path: "saleDetails.item", model: "Product" },
+      //   { path: "saleDetails.unit", model: "Unit" },
+      //   { path: "saleDetails.tax", model: "Tax" },
+      // ];
+
+      // Since we have an array of plain objects, we need to convert them to Mongoose documents to use `populate()`
+      // const SaleModel = mongoose.model("Sale");
+      // const populatedSales = await SaleModel.populate(mergedSales, options);
+
+      // return populatedSales;
+    } catch (error) {
+      console.error("Error fetching sales by store ID:", error);
+      throw error;
+    }
+  }
+
+  async getSalesOld(filter = {}) {
     return await Sale.find(filter)
       .populate("customer")
       .populate("saleDetails.item")
