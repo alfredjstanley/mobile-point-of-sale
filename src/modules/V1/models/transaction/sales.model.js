@@ -46,8 +46,13 @@ const saleSchema = new mongoose.Schema(
   {
     saleInvoiceId: {
       type: String,
-      required: [true, "Sale invoice ID is required"],
       unique: true,
+      required: [true, "Sale invoice ID is required"],
+    },
+    billNumber: {
+      type: Number,
+      unique: true,
+      required: [true, "Bill number is required"],
     },
     storeId: {
       type: mongoose.Schema.Types.ObjectId,

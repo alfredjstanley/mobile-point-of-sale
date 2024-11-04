@@ -15,9 +15,9 @@ class ProductService {
   }
 
   async getProducts(filter = {}) {
-    return await Product.find(filter, { storeId: 0 }).populate(
-      "category unit tax"
-    );
+    return await Product.find(filter, { storeId: 0 })
+      .lean()
+      .populate("category unit tax");
   }
 
   async getProductById(id) {
@@ -25,7 +25,7 @@ class ProductService {
   }
 
   async getProductsByCategory(categoryId) {
-    return await Product.find({ category: categoryId }).populate(
+    return await Product.find({ category: categoryId }).lean().populate(
       "category unit tax"
     );
   }
