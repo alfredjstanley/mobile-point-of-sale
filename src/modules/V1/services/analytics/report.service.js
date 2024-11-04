@@ -1,23 +1,39 @@
 const { Sale, QuickSale } = require("../../models/transaction");
 
 /**
- * Generates a sale report for a given storeId.
+ * Generates a sale report for a given storeId with a date range filter.
  * @param {String} storeId - The store ID for which to generate the report.
+ * @param {Object} searchQuery - Filter options including fromDate and toDate.
  * @returns {Promise<Object>} - A promise that resolves to the sale report object.
  */
-async function generateSaleReport(storeId) {
+async function generateSaleReport(storeId, searchQuery = {}) {
   try {
-    // Fetch all sales (normal and quick sales) for the store
+    // Destructure and set default values for searchQuery
+    const {
+      fromDate = new Date().toISOString().slice(0, 10), // Default to today's date if no fromDate is provided
+      toDate = new Date().toISOString().slice(0, 10), // Default to today's date if no toDate is provided
+    } = searchQuery;
+
+    // Construct the date range filter
+    const dateRangeFilter = {
+      dateOfInvoice: {
+        $gte: new Date(fromDate + "T00:00:00Z"),
+        $lt: new Date(toDate + "T23:59:59Z"),
+      },
+    };
+
+    // Fetch all sales (normal and quick sales) for the store within the date range
     const [normalSales, quickSales] = await Promise.all([
-      Sale.find({ storeId }).lean().exec(),
-      QuickSale.find({ storeId }).lean().exec(),
+      Sale.find({ storeId, ...dateRangeFilter })
+        .lean()
+        .exec(),
+      QuickSale.find({ storeId, ...dateRangeFilter })
+        .lean()
+        .exec(),
     ]);
 
     // Combine all sales
     const allSales = [...normalSales, ...quickSales];
-
-    // Number of Bills
-    const numberOfBills = allSales.length;
 
     // Total Sales (sum of totalAmount from all sales)
     const totalSales = allSales.reduce(
@@ -31,7 +47,7 @@ async function generateSaleReport(storeId) {
     // Net Sale
     const netSale = totalSales - salesReturn;
 
-    // Net Sale Breakdown
+    // Net Sale Breakdown based on payment type
     const netSaleBreakdown = {
       Cash: 0,
       Online: 0,
@@ -47,20 +63,17 @@ async function generateSaleReport(storeId) {
     };
 
     for (const sale of allSales) {
-      const paymentType = sale.paymentType;
-      const category = paymentTypeMapping[paymentType] || "Other";
-      netSaleBreakdown[category] += sale.totalAmount || 0;
+      const paymentCategory = paymentTypeMapping[sale.paymentType] || "Other";
+      netSaleBreakdown[paymentCategory] += sale.totalAmount || 0;
     }
 
-    // Total Credit
+    // Total Credit and Received Amount on Credits
     const totalCredit = netSaleBreakdown["Credit"];
-
-    // Received Amount on Credits - assuming you have a method to calculate this
     const receivedAmount = await calculateReceivedAmount(storeId);
 
     // Prepare the report
     const report = {
-      numberOfBills: numberOfBills,
+      numberOfBills: allSales.length,
       totalSales: formatCurrency(totalSales),
       salesReturn: formatCurrency(salesReturn),
       netSale: formatCurrency(netSale),
@@ -72,6 +85,7 @@ async function generateSaleReport(storeId) {
       credit: {
         totalCredit: formatCurrency(totalCredit),
         received: formatCurrency(receivedAmount),
+        balance: formatCurrency(totalCredit - receivedAmount),
       },
     };
 
@@ -88,7 +102,6 @@ async function generateSaleReport(storeId) {
  */
 async function calculateSalesReturn(storeId) {
   // TODO: Implement actual logic to calculate sales returns
-  // For now, return 0 or fetch from SalesReturn collection if available
   return 0;
 }
 
@@ -98,7 +111,6 @@ async function calculateSalesReturn(storeId) {
  */
 async function calculateReceivedAmount(storeId) {
   // TODO: Implement actual logic to calculate received amounts on credits
-  // For now, return 0 or fetch from Payments collection if available
   return 0;
 }
 
