@@ -5,66 +5,24 @@ const {
 } = require("../../services/analytics/report.service");
 
 const { responseHandler } = require("../../../../handlers");
+const { getDateRangeFromRequest } = require("../../../../utils/date.util");
 
-const getTopCustomersReport = async (req, res, next) => {
-  try {
-    const { storeId } = req.identifier;
-
-    const today = new Date().toISOString().slice(0, 10);
-    const fromDate = req.query.fromDate || today;
-    const toDate = req.query.toDate || today;
-
-    const searchQuery = {
-      fromDate,
-      toDate,
-    };
-
-    const report = await getTopCustomers(storeId, searchQuery);
-    responseHandler.sendSuccessResponse(res, report);
-  } catch (error) {
-    next(error);
-  }
+const createReportHandler = (reportFunction) => {
+  return async (req, res, next) => {
+    try {
+      const { storeId } = req.identifier;
+      const searchQuery = getDateRangeFromRequest(req);
+      const report = await reportFunction(storeId, searchQuery);
+      responseHandler.sendSuccessResponse(res, report);
+    } catch (error) {
+      next(error);
+    }
+  };
 };
 
-const getSalesReport = async (req, res, next) => {
-  try {
-    const { storeId } = req.identifier;
-
-    const today = new Date().toISOString().slice(0, 10);
-    const fromDate = req.query.fromDate || today;
-    const toDate = req.query.toDate || today;
-
-    const searchQuery = {
-      fromDate,
-      toDate,
-    };
-
-    const report = await generateSaleReport(storeId, searchQuery);
-    responseHandler.sendSuccessResponse(res, report);
-  } catch (error) {
-    next(error);
-  }
-};
-
-const getTopSellingProductsReport = async (req, res, next) => {
-  try {
-    const { storeId } = req.identifier;
-
-    const today = new Date().toISOString().slice(0, 10);
-    const fromDate = req.query.fromDate || today;
-    const toDate = req.query.toDate || today;
-
-    const searchQuery = {
-      fromDate,
-      toDate,
-    };
-
-    const report = await getTopSellingProducts(storeId, searchQuery);
-    responseHandler.sendSuccessResponse(res, report);
-  } catch (error) {
-    next(error);
-  }
-};
+const getSalesReport = createReportHandler(generateSaleReport);
+const getTopCustomersReport = createReportHandler(getTopCustomers);
+const getTopSellingProductsReport = createReportHandler(getTopSellingProducts);
 
 module.exports = {
   getTopSellingProductsReport,
