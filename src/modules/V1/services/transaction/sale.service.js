@@ -162,102 +162,51 @@ class SaleService {
       session.endSession();
     }
   }
+
   async getAllSales(filter = {}) {
     try {
-      const sales = await Sale.aggregate([
-        { $match: filter },
-        { $addFields: { source: "Sale" } }, // Add a field to differentiate Sale and QuickSale entries
-        {
-          $unionWith: {
-            coll: "quicksales",
-            pipeline: [
-              { $match: filter },
-              { $addFields: { source: "QuickSale" } },
-            ],
-          },
-        },
-        // Group by saleInvoiceId to merge entries with the same saleInvoiceId
-        {
-          $group: {
-            _id: "$saleInvoiceId",
-            sales: { $push: "$$ROOT" },
-          },
-        },
-        // Optionally, unwind the sales array if you prefer flat results
-      ]).exec();
+      const [sales, quickSales] = await Promise.all([
+        Sale.find(filter)
+          .populate({ path: "customer", select: "name" })
+          .populate({ path: "createdBy", select: "name" })
+          .populate({ path: "saleDetails.item", select: "name sellingPrice" })
+          .populate({ path: "saleDetails.unit", select: "name" })
+          .populate({ path: "saleDetails.tax", select: "rate" })
+          .lean(),
 
-      // Now, for each grouped sale, process the merging of Sale and QuickSale entries
-      const mergedSales = sales.map((group) => {
-        const { _id: saleInvoiceId, sales } = group;
+        QuickSale.find(filter)
+          .populate({ path: "customer", select: "name" })
+          .lean(),
+      ]);
 
-        // Separate entries from Sale and QuickSale
-        const saleEntry = sales.find((s) => s.source === "Sale");
-        const quickSaleEntry = sales.find((s) => s.source === "QuickSale");
-
-        // Merge the entries as needed
-        const mergedEntry = {
-          saleInvoiceId,
-          storeId: saleEntry ? saleEntry.storeId : quickSaleEntry.storeId,
-          customer: saleEntry ? saleEntry.customer : quickSaleEntry.customer,
-          dateOfInvoice: saleEntry
-            ? saleEntry.dateOfInvoice
-            : quickSaleEntry.dateOfInvoice,
-          totalAmount:
-            (saleEntry ? saleEntry.totalAmount : 0) +
-            (quickSaleEntry ? quickSaleEntry.totalAmount : 0),
-          paymentType: saleEntry
-            ? saleEntry.paymentType
-            : quickSaleEntry.paymentType,
-          saleType: saleEntry ? saleEntry.saleType : "Quick-Sale",
-          // Merge other fields as necessary
-          saleDetails: saleEntry ? saleEntry.saleDetails : [],
-          quickSaleDetails: quickSaleEntry
-            ? quickSaleEntry.quickSaleDetails
-            : [],
-          // Include other fields from both entries as needed
-        };
-
-        return mergedEntry;
-      });
-
-      return mergedSales;
-
-      // Populate references if needed (since aggregation doesn't populate automatically)
-      // For populating after aggregation, you can use Mongoose's `Model.populate()` method
-      // const options = [
-      //   { path: "storeId", model: "Store" },
-      //   { path: "customer", model: "Account" },
-      //   { path: "saleDetails.item", model: "Product" },
-      //   { path: "saleDetails.unit", model: "Unit" },
-      //   { path: "saleDetails.tax", model: "Tax" },
-      // ];
-
-      // Since we have an array of plain objects, we need to convert them to Mongoose documents to use `populate()`
-      // const SaleModel = mongoose.model("Sale");
-      // const populatedSales = await SaleModel.populate(mergedSales, options);
-
-      // return populatedSales;
+      return { sales, quickSales };
     } catch (error) {
-      console.error("Error fetching sales by store ID:", error);
       throw error;
     }
   }
 
-  async getSalesOld(filter = {}) {
-    return await Sale.find(filter)
-      .populate("customer")
-      .populate("saleDetails.item")
-      .populate("saleDetails.unit")
-      .populate("saleDetails.tax");
-  }
-
   async getSaleById(id) {
-    return await Sale.findById(id)
-      .populate("customer")
-      .populate("createdBy")
-      .populate("saleDetails.item")
-      .populate("saleDetails.unit")
-      .populate("saleDetails.unit");
+    try {
+      const [sale, quickSale] = await Promise.all([
+        Sale.findById(id)
+          .populate({ path: "customer", select: "name" })
+          .populate({ path: "saleDetails.item", select: "name price" })
+          .populate({ path: "saleDetails.unit", select: "unitType" })
+          .populate({ path: "saleDetails.tax", select: "rate" })
+          .lean(),
+
+        QuickSale.findById(id)
+          .populate({ path: "customer", select: "name" })
+          .lean(),
+      ]);
+
+      if (sale) return { type: "Sale", data: sale };
+      if (quickSale) return { type: "QuickSale", data: quickSale };
+
+      throw new Error("Sale not found");
+    } catch (error) {
+      throw error;
+    }
   }
 }
 
