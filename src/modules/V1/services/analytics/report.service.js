@@ -1,4 +1,33 @@
-const { Sale, QuickSale } = require("../../models/transaction");
+const {
+  Sale,
+  QuickSale,
+  StockTransaction,
+} = require("../../models/transaction");
+
+/**
+ * Placeholder function to calculate sales returns for the store.
+ * Implement this function based on your data model for sales returns.
+ */
+async function calculateSalesReturn(storeId) {
+  // TODO: Implement actual logic to calculate sales returns
+  return 0;
+}
+
+/**
+ * Placeholder function to calculate received amount on credits for the store.
+ * Implement this function based on your data model for payments received.
+ */
+async function calculateReceivedAmount(storeId) {
+  // TODO: Implement actual logic to calculate received amounts on credits
+  return 0;
+}
+
+/**
+ * Utility function to format numbers as currency.
+ */
+function formatCurrency(amount) {
+  return `₹${amount.toFixed(2)}`;
+}
 
 /**
  * Generates a sale report for a given storeId with a date range filter.
@@ -97,30 +126,97 @@ async function generateSaleReport(storeId, searchQuery = {}) {
 }
 
 /**
- * Placeholder function to calculate sales returns for the store.
- * Implement this function based on your data model for sales returns.
+ * Retrieves the top-selling products based on net sold quantities for a given store and date range.
+ * @param {String} storeId - The store ID for which to generate the report.
+ * @param {Object} searchQuery - Filter options including fromDate and toDate.
+ * @param {number} limit - The number of top products to retrieve.
+ * @returns {Promise<Array>} - An array of top-selling products with their total sold quantities.
  */
-async function calculateSalesReturn(storeId) {
-  // TODO: Implement actual logic to calculate sales returns
-  return 0;
-}
+async function getTopSellingProducts(storeId, searchQuery = {}, limit = 10) {
+  try {
+    const {
+      fromDate = new Date().toISOString().slice(0, 10),
+      toDate = new Date().toISOString().slice(0, 10),
+    } = searchQuery;
 
-/**
- * Placeholder function to calculate received amount on credits for the store.
- * Implement this function based on your data model for payments received.
- */
-async function calculateReceivedAmount(storeId) {
-  // TODO: Implement actual logic to calculate received amounts on credits
-  return 0;
-}
+    // Construct the date range filter
+    const dateRangeFilter = {
+      transactionDate: {
+        $gte: new Date(`${fromDate}T00:00:00Z`),
+        $lte: new Date(`${toDate}T23:59:59Z`),
+      },
+    };
 
-/**
- * Utility function to format numbers as currency.
- */
-function formatCurrency(amount) {
-  return `₹${amount.toFixed(2)}`;
+    // Build the match criteria
+    const matchCriteria = {
+      transactionType: { $in: ["SALE", "SALE_RETURN"] },
+      ...dateRangeFilter,
+      storeId,
+    };
+
+    const results = await StockTransaction.aggregate([
+      // Match transactions based on criteria
+      {
+        $match: matchCriteria,
+      },
+      // Group by productId and calculate net sold quantity
+      {
+        $group: {
+          _id: "$productId",
+          productName: { $first: "$productName" },
+          unit: { $first: "$unit" },
+          totalSoldQuantity: {
+            $sum: {
+              $cond: [
+                { $eq: ["$transactionType", "SALE"] },
+                "$transactionQuantity",
+                { $multiply: ["$transactionQuantity", -1] }, // Subtract for SALE_RETURN
+              ],
+            },
+          },
+        },
+      },
+      // Sort by totalSoldQuantity in descending order
+      {
+        $sort: { totalSoldQuantity: -1 },
+      },
+      // Limit to the specified number of top products
+      {
+        $limit: limit,
+      },
+      // Lookup product details
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      {
+        $unwind: "$productDetails",
+      },
+      // Project the fields to include in the result
+      {
+        $project: {
+          _id: 0,
+          id: "$_id",
+          unit: 1,
+          productName: 1,
+          totalSoldQuantity: 1,
+          sellingPrice: "$productDetails.sellingPrice",
+        },
+      },
+    ]);
+
+    return results;
+  } catch (error) {
+    console.error("Error fetching top-selling products:", error);
+    throw error;
+  }
 }
 
 module.exports = {
   generateSaleReport,
+  getTopSellingProducts,
 };
