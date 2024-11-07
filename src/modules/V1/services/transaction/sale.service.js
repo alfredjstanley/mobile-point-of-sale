@@ -120,7 +120,7 @@ class SaleService {
           }
         }
 
-        if (data.quickSaleDetails.length > 0) {
+        if (saleType === "Quick-Sale") {
           const quickSaleData = {
             saleInvoiceId: data.saleInvoiceId,
             billNumber: data.billNumber,
@@ -157,8 +157,9 @@ class SaleService {
         billNumber: data.billNumber,
       };
     } catch (error) {
-      session.endSession();
       throw error;
+    } finally {
+      session.endSession();
     }
   }
   async getAllSales(filter = {}) {

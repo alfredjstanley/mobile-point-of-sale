@@ -42,6 +42,21 @@ const saleDetailSchema = new mongoose.Schema({
   },
 });
 
+const quickSaleDetailSchema = new mongoose.Schema({
+  itemName: {
+    type: String,
+    required: [true, "Item name is required"],
+  },
+  quantity: {
+    type: Number,
+    required: [true, "Quantity is required"],
+  },
+  amount: {
+    type: Number,
+    required: [true, "Amount is required"],
+  },
+});
+
 const saleSchema = new mongoose.Schema(
   {
     saleInvoiceId: {
@@ -50,7 +65,7 @@ const saleSchema = new mongoose.Schema(
       required: [true, "Sale invoice ID is required"],
     },
     billNumber: {
-      type: Number,
+      type: String,
       unique: true,
       required: [true, "Bill number is required"],
     },
@@ -111,6 +126,10 @@ const saleSchema = new mongoose.Schema(
       ref: "AuthUser",
     },
     saleDetails: [saleDetailSchema],
+    quickSaleDetails: {
+      type: [quickSaleDetailSchema],
+      default: [],
+    },
   },
   {
     timestamps: true,

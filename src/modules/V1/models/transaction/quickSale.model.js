@@ -8,7 +8,7 @@ const quickSaleSchema = new mongoose.Schema(
       required: [true, "Sale invoice ID is required"],
     },
     billNumber: {
-      type: Number,
+      type: String,
       unique: true,
       required: [true, "Bill number is required"],
     },
