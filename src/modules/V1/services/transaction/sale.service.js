@@ -141,8 +141,8 @@ class SaleService {
         const accountTransaction = new AccountTransaction({
           documentNo: data.saleInvoiceId,
           transactionType: TRANSACTION_TYPE,
-          sAccountId: customer._id,
-          dAccountId: "671a4b97f46d70fab302c52f",
+          dAccountId: customer._id,
+          sAccountId: "671a4b97f46d70fab302c52f", // dummy account ID TODO: replace with actual fns
           amount: data.totalAmount,
           accountSourceType: data.paymentType === "CREDIT" ? "CREDIT" : "DEBIT",
           narration: `Sale Invoice ${data.saleInvoiceId}`,
