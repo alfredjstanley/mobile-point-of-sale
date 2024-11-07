@@ -36,6 +36,19 @@ class SaleService {
         const year = new Date().getFullYear().toString().slice(-2);
         data.billNumber = `${SALES_INVOICE_PREFIX}-${year}-${data.storeNumber}-${billNumber}`; // e.g. SINV-21-01-0001
 
+        // saletype logic
+        const saleType =
+          data.saleDetails.length > 0 && data.quickSaleDetails.length > 0
+            ? "Hybrid"
+            : data.saleDetails.length > 0
+            ? "Normal"
+            : data.quickSaleDetails.length > 0 && "Quick-Sale";
+
+        // if sale type not contains normal or quick-sale or hybrid, throw error message
+        if (!["Normal", "Quick-Sale", "Hybrid"].includes(saleType)) {
+          throw new Error("Invalid sale type");
+        } else data.saleType = saleType;
+
         // **Start transaction logic**
 
         const customer = await Account.findById(data.customer).session(session);
@@ -47,14 +60,7 @@ class SaleService {
           await customer.save({ session });
         }
 
-        data.saleType =
-          data.saleDetails.length > 0 && data.quickSaleDetails.length > 0
-            ? "Hybrid"
-            : data.saleDetails.length > 0
-            ? "Normal"
-            : "Quick-Sale";
-
-        if (data.saleDetails.length > 0) {
+        if (saleType === "Normal" || saleType === "Hybrid") {
           const sale = new Sale(data);
           await sale.save({ session });
 
