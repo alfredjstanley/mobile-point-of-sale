@@ -4,11 +4,8 @@ const { responseHandler } = require("../../../../handlers");
 class SaleController {
   async createSale(req, res, next) {
     try {
-      const data = req.body;
-      const { storeId, userId } = req.identifier;
-
-      data.storeId = storeId;
-      data.createdBy = userId;
+      const { storeId, userId, storeNumber } = req.identifier;
+      const data = { ...req.body, storeId, storeNumber, createdBy: userId };
 
       const sale = await saleService.createSale(data);
 

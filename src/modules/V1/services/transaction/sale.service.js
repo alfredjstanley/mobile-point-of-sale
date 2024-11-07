@@ -16,6 +16,7 @@ const { getNextSequence } = require("../../../../utils/counter.utils");
 const TRANSACTION_TYPE = "SALE";
 const TRANSACTION_MODE = "OUT";
 const TRANSACTION_DIRECTION = "IN";
+const SALES_INVOICE_PREFIX = "SINV";
 
 class SaleService {
   async createSale(data) {
@@ -24,7 +25,16 @@ class SaleService {
     try {
       await session.withTransaction(async () => {
         // **Generate a unique bill number**
-        data.billNumber = await getNextSequence("billNumber", session);
+        const billNumberType = `${SALES_INVOICE_PREFIX}-${data.storeId}`;
+        let billNumber = await getNextSequence(billNumberType, session);
+
+        // Format bill number to 4 digits and storenumber to 2 digits
+        billNumber = billNumber.toString().padStart(4, "0");
+        data.storeNumber = data.storeNumber.toString().padStart(2, "0");
+
+        // Get last two digits of the year
+        const year = new Date().getFullYear().toString().slice(-2);
+        data.billNumber = `${SALES_INVOICE_PREFIX}-${year}-${data.storeNumber}-${billNumber}`; // e.g. SINV-21-01-0001
 
         // **Start transaction logic**
 
