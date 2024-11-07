@@ -100,6 +100,7 @@ class SaleService {
               accountName: customer.name,
               transactionDate: data.dateOfInvoice,
               createdBy: data.createdBy,
+              storeId: data.storeId,
             });
             await stockTransaction.save({ session });
 
@@ -115,6 +116,7 @@ class SaleService {
               accountId: customer._id,
               taxableAmount: detail.totalAmount - detail.taxAmount,
               createdBy: data.createdBy,
+              storeId: data.storeId,
             });
             await taxTransaction.save({ session });
           }
@@ -146,6 +148,7 @@ class SaleService {
           narration: `Sale Invoice ${data.saleInvoiceId}`,
           transactionDate: data.dateOfInvoice,
           createdBy: data.createdBy,
+          storeId: data.storeId,
         });
         await accountTransaction.save({ session });
 

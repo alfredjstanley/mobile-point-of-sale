@@ -1,5 +1,5 @@
 /**
- * The TaxTransaction model records tax-related transactions associated with purchases, sales, and returns. 
+ * The TaxTransaction model records tax-related transactions associated with purchases, sales, and returns.
  * It references other models such as Account and Sale or Purchase.
  */
 const mongoose = require("mongoose");
@@ -55,6 +55,11 @@ const taxTransactionSchema = new mongoose.Schema(
     taxableAmount: {
       type: Number,
       required: [true, "Taxable amount is required"],
+    },
+    storeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Store",
+      required: [true, "Store is required"],
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

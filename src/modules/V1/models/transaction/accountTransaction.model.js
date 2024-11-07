@@ -47,6 +47,11 @@ const accountTransactionSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    storeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Store",
+      required: [true, "Store is required"],
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "AuthUser",

@@ -17,7 +17,8 @@ const stockTransactionSchema = new mongoose.Schema(
       ],
       required: [true, "Transaction type is required"],
     },
-    documentNo: { // Sale masterId or Purchase masterId
+    documentNo: {
+      // Sale masterId or Purchase masterId
       type: String,
       trim: true,
     },
@@ -54,6 +55,11 @@ const stockTransactionSchema = new mongoose.Schema(
       type: Number,
       required: [true, "Transaction quantity is required"],
       // Quantity of the product involved.
+    },
+    storeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Store",
+      required: [true, "Store is required"],
     },
     accountId: {
       type: mongoose.Schema.Types.ObjectId,
