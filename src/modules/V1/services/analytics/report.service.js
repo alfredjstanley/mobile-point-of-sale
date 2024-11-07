@@ -2,6 +2,7 @@ const {
   Sale,
   QuickSale,
   StockTransaction,
+  AccountTransaction,
 } = require("../../models/transaction");
 
 /**
@@ -216,7 +217,88 @@ async function getTopSellingProducts(storeId, searchQuery = {}, limit = 10) {
   }
 }
 
+/**
+ * Retrieves the top customers based on net transaction amounts for a given store and date range.
+ * @param {String} storeId - The store ID for which to generate the report.
+ * @param {Object} searchQuery - Filter options including fromDate and toDate.
+ * @param {number} limit - The number of top customers to retrieve.
+ * @returns {Promise<Array>} - An array of top customers with their total transaction amounts.
+ */
+async function getTopCustomers(storeId, searchQuery = {}, limit = 10) {
+  try {
+    const {
+      fromDate = new Date().toISOString().slice(0, 10),
+      toDate = new Date().toISOString().slice(0, 10),
+    } = searchQuery;
+
+    // Construct the date range filter
+    const dateRangeFilter = {
+      transactionDate: {
+        $gte: new Date(`${fromDate}T00:00:00Z`),
+        $lte: new Date(`${toDate}T23:59:59Z`),
+      },
+    };
+
+    // Build the match criteria
+    const matchCriteria = {
+      transactionType: { $in: ["SALE", "SALE_RETURN"] },
+      ...dateRangeFilter,
+      storeId,
+    };
+
+    const results = await AccountTransaction.aggregate([
+      // Match transactions based on criteria
+      {
+        $match: matchCriteria,
+      },
+      // Group by customer account (dAccountId) and calculate net amount and bills count
+      {
+        $group: {
+          _id: "$dAccountId",
+          totalAmount: {
+            $sum: {
+              $cond: [
+                { $eq: ["$transactionType", "SALE"] },
+                "$amount",
+                { $multiply: ["$amount", -1] }, // Subtract for SALE_RETURN
+              ],
+            },
+          },
+          billsCount: { $sum: 1 }, // Count number of transactions per customer
+        },
+      },
+      { $sort: { totalAmount: -1 } },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: "accounts",
+          localField: "_id",
+          foreignField: "_id",
+          as: "customerDetails",
+        },
+      },
+      { $unwind: "$customerDetails" },
+      {
+        $project: {
+          _id: 0,
+          customerId: "$_id",
+          customerName: "$customerDetails.name",
+          phoneNumber: "$customerDetails.phone",
+          totalAmount: 1,
+          billsCount: 1,
+        },
+      },
+    ]);
+
+    return results;
+  } catch (error) {
+    console.error("Error fetching top customers:", error);
+    throw error;
+  }
+}
+
 module.exports = {
+  getTopCustomers,
   generateSaleReport,
   getTopSellingProducts,
 };
