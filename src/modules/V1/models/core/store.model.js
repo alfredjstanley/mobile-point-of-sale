@@ -8,6 +8,11 @@ const storeSchema = new mongoose.Schema(
       default: null,
       maxlength: [100, "Store name cannot exceed 100 characters"],
     },
+    storeNumber: {
+      type: Number,
+      unique: true,
+      required: [true, "Store number is required"],
+    },
     phoneNumber: {
       type: String,
       match: [
@@ -77,6 +82,7 @@ const storeSchema = new mongoose.Schema(
       enum: ["ACTIVE", "INACTIVE", "PENDING", "SUSPENDED", "DELETED"],
     },
     aboutStore: { type: String, default: null },
+    createdAt: { type: Date, default: Date.now },
   },
   {
     versionKey: false,

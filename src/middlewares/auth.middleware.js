@@ -12,6 +12,12 @@ async function verifyUser(req, res, next) {
     if (error) return res.status(401).json({ message: "Invalid token" });
 
     try {
+      /**
+       * The decoded object contains the user's identifier
+       * which is the secretOrKey in the database.
+       * @param {string} decoded.identifier
+       * @returns {object} { userId, storeId, storeNumber }
+       */
       req.identifier = await getUserStoreIds(decoded.identifier);
       next();
     } catch (err) {

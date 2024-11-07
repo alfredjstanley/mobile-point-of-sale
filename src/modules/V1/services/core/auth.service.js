@@ -1,7 +1,10 @@
 const bcrypt = require("bcrypt");
+const mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
 
 const { AuthUser, Store, UserProfile } = require("../../models/core");
+
+const { getNextSequence } = require("../../../../utils/counter.utils");
 const generateToken = require("../../../../helpers/generateToken.helper");
 
 const authService = {
@@ -9,18 +12,24 @@ const authService = {
    *
    * @param {object} secretOrKey
    * @returns {
+   * userId: string,
    * storeId: string,
-   * userId: string
+   * storeNumber: number
    * }
    */
   async getUserStoreIds(secretOrKey) {
-    const user = await AuthUser.findOne(
-      { secretOrKey, status: "ACTIVE" },
-      { storeId: 1 }
-    );
+    const user = await AuthUser.findOne({
+      secretOrKey,
+      status: "ACTIVE",
+    }).populate("storeId");
+
     if (!user) throw new Error("User not found");
 
-    return { storeId: user.storeId, userId: user._id };
+    return {
+      userId: user._id,
+      storeId: user.storeId._id,
+      storeNumber: user.storeId.storeNumber,
+    };
   },
 
   async getUserProfile(secretOrKey) {
@@ -63,43 +72,56 @@ const authService = {
   },
 
   async register({ phoneNumber, mpin }) {
-    const extUser = await AuthUser.findOne({ phoneNumber });
-    if (extUser)
-      throw new Error("Merchant already exists with this phone number.");
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    const newStore = new Store({ status: "ACTIVE" });
-    const store = await newStore.save();
+    try {
+      const extUser = await AuthUser.findOne({ phoneNumber }).session(session);
+      if (extUser)
+        throw new Error("Merchant already exists with this phone number.");
 
-    const mPinHash = await bcrypt.hash(mpin, 10);
+      const storeNumber = await getNextSequence("storeNumber", session);
+      const newStore = new Store({ storeNumber, status: "ACTIVE" });
+      const store = await newStore.save({ session });
 
-    const dateNow = new Date();
+      const mPinHash = await bcrypt.hash(mpin, 10);
 
-    const userData = {
-      loginHistory: [{ loginAt: dateNow }],
-      lastLoginAt: dateNow,
-      secretOrKey: uuidv4(),
+      const dateNow = new Date();
 
-      mustChangePin: false,
-      storeId: store._id,
+      const userData = {
+        loginHistory: [{ loginAt: dateNow }],
+        lastLoginAt: dateNow,
+        secretOrKey: uuidv4(),
 
-      role: "Administrator",
-      status: "ACTIVE",
+        mustChangePin: false,
+        storeId: store._id,
 
-      loginCount: 1,
-      phoneNumber,
-      mPinHash,
-    };
+        role: "Administrator",
+        status: "ACTIVE",
 
-    const merchant = new AuthUser(userData);
-    await merchant.save();
+        loginCount: 1,
+        phoneNumber,
+        mPinHash,
+      };
 
-    const token = generateToken({ identifier: merchant.secretOrKey });
+      const merchant = new AuthUser(userData);
+      await merchant.save({ session });
 
-    return {
-      message: "Merchant registered successfully",
-      accessToken: token,
-      merchant,
-    };
+      const token = generateToken({ identifier: merchant.secretOrKey });
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return {
+        message: "Merchant registered successfully",
+        accessToken: token,
+        merchant,
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
   },
 
   async resetMpin({ phoneNumber, mpin }) {
