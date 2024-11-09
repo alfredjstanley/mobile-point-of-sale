@@ -69,6 +69,11 @@ const savedOrderSchema = new mongoose.Schema(
       ref: "Account",
       required: [true, "Customer is required"],
     },
+    orderNumber: {
+      type: String,
+      unique: true,
+      required: [true, "Order number is required"],
+    },
     orderStatus: {
       type: String,
       enum: ["Pending", "Confirmed", "Cancelled"],
