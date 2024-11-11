@@ -69,6 +69,11 @@ const savedOrderSchema = new mongoose.Schema(
       ref: "Account",
       required: [true, "Customer is required"],
     },
+    orderId: {
+      type: String,
+      unique: true,
+      required: [true, "Save Order ID is required"],
+    },
     orderNumber: {
       type: String,
       unique: true,
