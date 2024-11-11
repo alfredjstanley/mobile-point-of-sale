@@ -16,6 +16,7 @@ const accountSchema = new mongoose.Schema(
     email: {
       type: String,
       trim: true,
+      default: null,
       lowercase: true,
     },
     address: {
@@ -49,7 +50,7 @@ const accountSchema = new mongoose.Schema(
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "UserAuth",
-      required: true,
+      default: null,
     },
     modifiedBy: {
       type: mongoose.Schema.Types.ObjectId,

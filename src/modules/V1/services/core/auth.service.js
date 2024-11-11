@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
 
+const { Account } = require("../../models/master");
 const { AuthUser, Store, UserProfile } = require("../../models/core");
 
 const { getNextSequence } = require("../../../../utils/counter.utils");
@@ -83,6 +84,15 @@ const authService = {
       const storeNumber = await getNextSequence("storeNumber", session);
       const newStore = new Store({ storeNumber, status: "ACTIVE" });
       const store = await newStore.save({ session });
+
+      const localAccount = new Account({
+        accountType: "CUSTOMER",
+        name: "[Local Sales]",
+        phone: "0000000000",
+        storeId: store._id,
+      });
+
+      await localAccount.save({ session });
 
       const mPinHash = await bcrypt.hash(mpin, 10);
 
