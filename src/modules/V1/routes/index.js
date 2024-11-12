@@ -4,6 +4,7 @@ const authRouter = require("./core/auth.route");
 const unitRouter = require("./master/unit.route");
 const accountRouter = require("./master/account.route");
 
+const reportRouter = require("./report.route");
 const storeRouter = require("./core/store.route");
 const saleRouter = require("./transaction/sale.route");
 const productRoute = require("./master/product.route");
@@ -14,11 +15,9 @@ const taxRouter = require("./resource/tax.route");
 const stateRouter = require("./resource/state.route");
 const districtRouter = require("./resource/district.route");
 const storeTypeRouter = require("./resource/storeType.route");
-const analyticsRouter = require("./analytics/analytics.route");
 
+const analyticsRouter = require("./analytics/analytics.route");
 const saveOrderRouter = require("./management/saveOrder.route");
-// const reportRouter = require("./report.route");
-// const salesReturnRouter = require("./salesReturn.route");
 
 router.use("/", authRouter);
 
@@ -26,6 +25,7 @@ router.use("/units", unitRouter);
 router.use("/sales", saleRouter);
 router.use("/store", storeRouter);
 
+router.use("/reports", reportRouter);
 router.use("/products", productRoute);
 router.use("/accounts", accountRouter);
 router.use("/purchases", purchaseRouter);
@@ -38,8 +38,5 @@ router.use("/analytics", analyticsRouter);
 router.use("/store-types", storeTypeRouter);
 
 router.use("/saves/orders", saveOrderRouter);
-
-// router.use("/reports", reportRouter);
-// router.use("/sales-returns", salesReturnRouter);
 
 module.exports = router;
