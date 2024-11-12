@@ -89,7 +89,7 @@ exports.createSavedOrderValidator = [
     .withMessage("Amount must be a number"),
 
   body("notes").optional().isString().withMessage("Notes must be a string"),
-  body("orderId").notEmpty().withMessage("Sale order ID is required"),
+  body("saleInvoiceId").notEmpty().withMessage("Sale invoice Id is required"),
 
   body("dateCreated")
     .optional()

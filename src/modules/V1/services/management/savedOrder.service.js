@@ -40,13 +40,7 @@ class SavedOrderService {
 
   async getAllSavedOrders(filter = {}) {
     try {
-      const savedOrders = await SavedOrder.find(filter)
-        .populate({ path: "customer", select: "name" })
-        .populate({ path: "createdBy", select: "name" })
-        .populate({ path: "saleDetails.item", select: "name sellingPrice" })
-        .populate({ path: "saleDetails.unit", select: "name" })
-        .populate({ path: "saleDetails.tax", select: "rate" })
-        .lean();
+      const savedOrders = await SavedOrder.find(filter).lean();
 
       return savedOrders;
     } catch (error) {
@@ -56,12 +50,7 @@ class SavedOrderService {
 
   async getSavedOrderById(id) {
     try {
-      const savedOrder = await SavedOrder.findById(id)
-        .populate({ path: "customer", select: "name" })
-        .populate({ path: "saleDetails.item", select: "name sellingPrice" })
-        .populate({ path: "saleDetails.unit", select: "name" })
-        .populate({ path: "saleDetails.tax", select: "rate" })
-        .lean();
+      const savedOrder = await SavedOrder.findById(id).lean();
 
       if (savedOrder) return savedOrder;
 

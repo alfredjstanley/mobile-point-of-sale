@@ -170,16 +170,9 @@ class SaleService {
     try {
       const [sales, quickSales] = await Promise.all([
         Sale.find(filter)
-          .populate({ path: "customer", select: "name" })
-          .populate({ path: "createdBy", select: "name" })
-          .populate({ path: "saleDetails.item", select: "name sellingPrice" })
-          .populate({ path: "saleDetails.unit", select: "name" })
-          .populate({ path: "saleDetails.tax", select: "rate" })
-          .lean(),
+        .lean(),
 
-        QuickSale.find(filter)
-          .populate({ path: "customer", select: "name" })
-          .lean(),
+        QuickSale.find(filter).lean(),
       ]);
 
       return { sales, quickSales };
@@ -191,16 +184,9 @@ class SaleService {
   async getSaleById(id) {
     try {
       const [sale, quickSale] = await Promise.all([
-        Sale.findById(id)
-          .populate({ path: "customer", select: "name" })
-          .populate({ path: "saleDetails.item", select: "name price" })
-          .populate({ path: "saleDetails.unit", select: "unitType" })
-          .populate({ path: "saleDetails.tax", select: "rate" })
-          .lean(),
+        Sale.findById(id).lean(),
 
-        QuickSale.findById(id)
-          .populate({ path: "customer", select: "name" })
-          .lean(),
+        QuickSale.findById(id).lean(),
       ]);
 
       if (sale) return { type: "Sale", data: sale };

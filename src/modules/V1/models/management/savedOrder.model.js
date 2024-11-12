@@ -69,7 +69,7 @@ const savedOrderSchema = new mongoose.Schema(
       ref: "Account",
       required: [true, "Customer is required"],
     },
-    orderId: {
+    saleInvoiceId: {
       type: String,
       unique: true,
       required: [true, "Save Order ID is required"],
