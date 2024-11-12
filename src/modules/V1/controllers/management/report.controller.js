@@ -17,6 +17,20 @@ class ReportController {
       next(error);
     }
   }
+
+  async getCreditSalesReport(req, res, next) {
+    try {
+      const { storeId } = req.identifier;
+      const searchQuery = getDateRangeFromRequest(req);
+      const report = await reportService.generateCreditSaleReport(
+        storeId,
+        searchQuery
+      );
+      responseHandler.sendSuccessResponse(res, report);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new ReportController();

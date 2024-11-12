@@ -1,4 +1,41 @@
-const { Sale, QuickSale } = require("../../models/transaction");
+const { Sale, QuickSale, CreditPayment } = require("../../models/transaction");
+
+// Helper functions
+// Format currency as '₹123.45'
+function formatCurrency(amount) {
+  return "₹" + amount.toFixed(2);
+}
+
+// Format date as '10-Oct-2024, 04:30 AM'
+function formatDate(date) {
+  const d = new Date(date);
+  const day = d.getDate().toString().padStart(2, "0");
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const month = monthNames[d.getMonth()];
+  const year = d.getFullYear();
+
+  let hours = d.getHours();
+  const minutes = d.getMinutes().toString().padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12; // Convert to 12-hour format
+
+  const time = `${hours.toString().padStart(2, "0")}:${minutes} ${ampm}`;
+
+  return `${day}-${month}-${year}, ${time}`;
+}
 
 /**
  * Generates a bill report for a given storeId with a date range filter.
@@ -119,42 +156,121 @@ async function generateBillReport(storeId, searchQuery = {}) {
   }
 }
 
-// Helper function to format currency
-function formatCurrency(amount) {
-  return "₹" + amount.toFixed(2);
-}
+/**
+ * Generates a credit sale report for a given storeId with an optional date range.
+ * @param {String} storeId - The store ID for which to generate the report.
+ * @param {Object} searchQuery - Filter options including fromDate and toDate.
+ * @returns {Promise<Object>} - A promise that resolves to the credit sale report object.
+ */
+async function generateCreditSaleReport(storeId, searchQuery = {}) {
+  try {
+    // Set default dates if not provided
+    const {
+      fromDate = new Date(new Date().setMonth(new Date().getMonth() - 1))
+        .toISOString()
+        .slice(0, 10), // Default to 1 month ago
+      toDate = new Date().toISOString().slice(0, 10), // Default to today's date
+    } = searchQuery;
 
-// Helper function to format date as '10-Oct-2024, 04:30 AM'
-function formatDate(date) {
-  const d = new Date(date);
-  const day = d.getDate().toString().padStart(2, "0");
-  const monthNames = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  const month = monthNames[d.getMonth()];
-  const year = d.getFullYear();
+    // Construct date range filter
+    const dateRangeFilter = {
+      dateOfInvoice: {
+        $gte: new Date(fromDate + "T00:00:00Z"),
+        $lt: new Date(toDate + "T23:59:59Z"),
+      },
+    };
 
-  let hours = d.getHours();
-  const minutes = d.getMinutes().toString().padStart(2, "0");
-  const ampm = hours >= 12 ? "PM" : "AM";
-  hours = hours % 12 || 12; // Convert to 12-hour format
+    // Fetch all credit sales (normal and quick sales)
+    const [creditSales, creditQuickSales] = await Promise.all([
+      Sale.find({
+        storeId,
+        paymentType: "CREDIT",
+        ...dateRangeFilter,
+      })
+        .populate("customer", "name phone") // Use 'phone' or 'mobileNumber' consistently
+        .lean()
+        .exec(),
+      QuickSale.find({
+        storeId,
+        paymentType: "CREDIT",
+        ...dateRangeFilter,
+      })
+        .populate("customer", "name phone") // Use 'phone' or 'mobileNumber' consistently
+        .lean()
+        .exec(),
+    ]);
 
-  const time = `${hours.toString().padStart(2, "0")}:${minutes} ${ampm}`;
+    // Combine all credit sales
+    const allCreditSales = [...creditSales, ...creditQuickSales];
 
-  return `${day}-${month}-${year}, ${time}`;
+    // Total credit amount (sum of totalAmount from all credit sales)
+    const totalCredit = allCreditSales.reduce(
+      (sum, sale) => sum + (sale.totalAmount || 0),
+      0
+    );
+
+    // Number of bills
+    const billsCount = allCreditSales.length;
+
+    // Fetch total received amount on credits within the date range
+    const receivedPayments = await CreditPayment.aggregate([
+      {
+        $match: {
+          storeId,
+          date: {
+            $gte: new Date(fromDate + "T00:00:00Z"),
+            $lt: new Date(toDate + "T23:59:59Z"),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalReceived: { $sum: "$amount" },
+        },
+      },
+    ]);
+
+    const totalReceived = receivedPayments[0]?.totalReceived || 0;
+
+    // Pending amount
+    const pendingAmount = totalCredit - totalReceived;
+
+    // Prepare bills array
+    const bills = allCreditSales.map((sale) => ({
+      bill_no: sale.billNumber,
+      date: formatDate(sale.dateOfInvoice),
+      customer_name: sale.customer?.name || "Unknown",
+      contact: sale.customer?.phone || "No number",
+      items:
+        (sale.saleDetails ? sale.saleDetails.length : 0) +
+        (sale.quickSaleDetails ? sale.quickSaleDetails.length : 0),
+      amount: sale.totalAmount,
+    }));
+
+    // Prepare the report
+    const report = {
+      time_periods: ["1 Month", "6 Months", "1 Year"],
+      total_sale_credit: {
+        total: formatCurrency(totalCredit),
+        received: formatCurrency(totalReceived),
+        pending: formatCurrency(pendingAmount),
+      },
+      summary: {
+        bills_count: billsCount,
+        total_credit: formatCurrency(totalCredit),
+      },
+      bills,
+    };
+
+    return report;
+  } catch (error) {
+    console.error("Error generating credit sale report:", error);
+    throw error;
+  }
 }
 
 module.exports = {
   generateBillReport,
+  generateCreditSaleReport,
 };
