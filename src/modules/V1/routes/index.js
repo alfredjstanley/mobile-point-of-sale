@@ -16,6 +16,7 @@ const stateRouter = require("./resource/state.route");
 const districtRouter = require("./resource/district.route");
 const storeTypeRouter = require("./resource/storeType.route");
 
+const paymentRouter = require("./transaction/payment.route");
 const analyticsRouter = require("./analytics/analytics.route");
 const saveOrderRouter = require("./management/saveOrder.route");
 
@@ -28,6 +29,8 @@ router.use("/store", storeRouter);
 router.use("/reports", reportRouter);
 router.use("/products", productRoute);
 router.use("/accounts", accountRouter);
+router.use("/payments", paymentRouter);
+
 router.use("/purchases", purchaseRouter);
 router.use("/categories", categoryRouter);
 

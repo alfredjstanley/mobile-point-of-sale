@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const { Sale, CreditPayment } = require("../../models/transaction");
+
 const accountSchema = new mongoose.Schema(
   {
     name: {
@@ -37,6 +39,10 @@ const accountSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    outstandingBalance: {
+      type: Number,
+      default: 0,
+    },
     accountType: {
       type: String,
       required: [true, "Account type is required"],
@@ -70,5 +76,24 @@ const accountSchema = new mongoose.Schema(
 );
 
 accountSchema.index({ phone: 1, storeId: 1 }, { unique: true });
+
+// Methods to update the balance
+accountSchema.methods.updateBalance = async function () {
+  const sales = await Sale.aggregate([
+    { $match: { customer: this._id, paymentType: "CREDIT" } },
+    { $group: { _id: null, totalCredit: { $sum: "$totalAmount" } } },
+  ]);
+
+  const payments = await CreditPayment.aggregate([
+    { $match: { customer: this._id } },
+    { $group: { _id: null, totalPaid: { $sum: "$amount" } } },
+  ]);
+
+  const totalCredit = sales[0]?.totalCredit || 0;
+  const totalPaid = payments[0]?.totalPaid || 0;
+
+  this.outstandingBalance = totalCredit - totalPaid;
+  await this.save();
+};
 
 module.exports = mongoose.model("Account", accountSchema);
