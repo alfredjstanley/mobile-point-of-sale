@@ -197,12 +197,22 @@ class SaleService {
           delete detail._id;
           return detail;
         });
+        delete sale.storeId;
         delete sale.createdAt;
         delete sale.updatedAt;
         return { type: "Sale", data: sale };
       }
       if (quickSale) {
         quickSale.customer = quickSale.customer.name;
+        // loop through 'quickSaleDetails' and delete _id field
+        quickSale.quickSaleDetails = quickSale.quickSaleDetails.map(
+          (detail) => {
+            delete detail._id;
+            return detail;
+          }
+        );
+
+        delete quickSale.storeId;
         delete quickSale.createdAt;
         delete quickSale.updatedAt;
         return { type: "QuickSale", data: quickSale };
