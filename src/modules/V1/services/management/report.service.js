@@ -238,6 +238,7 @@ async function generateCreditSaleReport(storeId, searchQuery = {}) {
 
     // Prepare bills array
     const bills = allCreditSales.map((sale) => ({
+      id: sale._id,
       bill_no: sale.billNumber,
       date: formatDate(sale.dateOfInvoice),
       customer_name: sale.customer?.name || "Unknown",

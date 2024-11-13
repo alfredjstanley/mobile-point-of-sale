@@ -169,9 +169,7 @@ class SaleService {
   async getAllSales(filter = {}) {
     try {
       const [sales, quickSales] = await Promise.all([
-        Sale.find(filter)
-        .lean(),
-
+        Sale.find(filter).lean(),
         QuickSale.find(filter).lean(),
       ]);
 
@@ -184,13 +182,31 @@ class SaleService {
   async getSaleById(id) {
     try {
       const [sale, quickSale] = await Promise.all([
-        Sale.findById(id).lean(),
-
-        QuickSale.findById(id).lean(),
+        Sale.findById(id)
+          .populate("customer", "name -_id")
+          .populate({ path: "saleDetails.item", select: "name" })
+          .lean(),
+        QuickSale.findById(id).populate("customer", "name").lean(),
       ]);
 
-      if (sale) return { type: "Sale", data: sale };
-      if (quickSale) return { type: "QuickSale", data: quickSale };
+      if (sale) {
+        sale.customer = sale.customer.name; // Transform customer field to contain only the name (UI requirement)
+        // loop through sale details and change item into item.name
+        sale.saleDetails = sale.saleDetails.map((detail) => {
+          detail.item = detail.item.name;
+          delete detail._id;
+          return detail;
+        });
+        delete sale.createdAt;
+        delete sale.updatedAt;
+        return { type: "Sale", data: sale };
+      }
+      if (quickSale) {
+        quickSale.customer = quickSale.customer.name;
+        delete quickSale.createdAt;
+        delete quickSale.updatedAt;
+        return { type: "QuickSale", data: quickSale };
+      }
 
       throw new Error("Sale not found");
     } catch (error) {
