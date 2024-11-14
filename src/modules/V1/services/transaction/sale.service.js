@@ -54,6 +54,14 @@ class SaleService {
         const customer = await Account.findById(data.customer).session(session);
         if (!customer) throw new Error("Invalid customer ID");
 
+        // Prevent creating credit sale for [Local Sales]
+        if (
+          data.paymentType === "CREDIT" &&
+          customer.name === "[Local Sales]"
+        ) {
+          throw new Error("Cannot create credit sale for [Local Sales]");
+        }
+
         // Handle credit if applicable
         if (data.paymentType === "CREDIT") {
           customer.balance += data.totalAmount;
