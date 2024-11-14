@@ -39,10 +39,6 @@ const accountSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    outstandingBalance: {
-      type: Number,
-      default: 0,
-    },
     accountType: {
       type: String,
       required: [true, "Account type is required"],
@@ -92,7 +88,7 @@ accountSchema.methods.updateBalance = async function () {
   const totalCredit = sales[0]?.totalCredit || 0;
   const totalPaid = payments[0]?.totalPaid || 0;
 
-  this.outstandingBalance = totalCredit - totalPaid;
+  this.balance = totalCredit - totalPaid;
   await this.save();
 };
 
