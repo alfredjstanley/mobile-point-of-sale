@@ -74,3 +74,21 @@ exports.getStaffByIdValidator = [
     .isMongoId()
     .withMessage("Invalid Staff ID format"),
 ];
+
+exports.updateStaffValidator = [
+  param("id")
+    .notEmpty()
+    .withMessage("Staff ID is required")
+    .isMongoId()
+    .withMessage("Invalid Staff ID format"),
+  body("name").optional(),
+  body("status")
+    .optional()
+    .isIn(["ACTIVE", "INACTIVE", "PENDING", "SUSPENDED"])
+    .withMessage("Invalid status type"),
+  body("role")
+    .optional()
+    .isIn(["Administrator", "Staff", "Normal"])
+    .withMessage("Invalid role type"),
+  body("mpin").optional().isNumeric().withMessage("MPIN must be a number"),
+];

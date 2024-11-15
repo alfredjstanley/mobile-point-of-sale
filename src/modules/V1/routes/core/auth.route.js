@@ -49,6 +49,14 @@ authRouter.get(
   handler.getStaffById
 );
 
+authRouter.put(
+  "/staff/:id",
+  authMiddleware,
+  validator.updateStaffValidator,
+  handleValidationErrors,
+  handler.updateStaff
+);
+
 authRouter.get("/staffs", authMiddleware, handler.getStaffs);
 
 module.exports = authRouter;

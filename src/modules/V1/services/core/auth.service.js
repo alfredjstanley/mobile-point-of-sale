@@ -235,6 +235,52 @@ const authService = {
   async getStaffById(staffId) {
     return await AuthUser.findById(staffId).populate("userProfile");
   },
+
+  async updateStaffById(id, data) {
+    try {
+      const user = await AuthUser.findById(id).populate("userProfile");
+
+      // Validate the user and store ownership
+      if (!user) throw new Error("User not found");
+      if (!user.storeId.equals(data.storeId))
+        throw new Error("Unauthorized store access");
+
+      const updates = {};
+      let updatedUserProfile = null;
+
+      // Update the user profile if name is provided
+      if (data.name) {
+        updatedUserProfile = await UserProfile.findByIdAndUpdate(
+          user.userProfile._id,
+          { name: data.name },
+          { new: true }
+        );
+        updates.userProfile = updatedUserProfile;
+      }
+
+      // Hash the MPIN if provided
+      if (data.mpin) {
+        updates.mPinHash = await bcrypt.hash(data.mpin, 10);
+      }
+
+      // Update the main user data
+      const updatedUser = await AuthUser.findByIdAndUpdate(
+        id,
+        { ...data, ...updates },
+        { new: true }
+      );
+
+      // Ensure the updated user includes the updated profile
+      if (updatedUserProfile) {
+        updatedUser.userProfile = updatedUserProfile;
+      }
+
+      return updatedUser;
+    } catch (error) {
+      console.error("Error updating staff:", error.message);
+      throw error;
+    }
+  },
 };
 
 module.exports = authService;

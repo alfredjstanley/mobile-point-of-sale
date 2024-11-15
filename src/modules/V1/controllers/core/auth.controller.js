@@ -129,6 +129,22 @@ const authController = {
       next(error);
     }
   },
+
+  async updateStaff(req, res, next) {
+    try {
+      const { storeId, userId } = req.identifier;
+      const { id } = req.params;
+
+      const data = req.body;
+      data.storeId = storeId;
+      data.createdBy = userId;
+
+      const responseData = await authService.updateStaffById(id, data);
+      responseHandler.sendSuccessResponse(res, responseData, StaffDTO);
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 
 module.exports = authController;
