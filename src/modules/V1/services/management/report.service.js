@@ -1,4 +1,5 @@
 const { Sale, QuickSale, CreditPayment } = require("../../models/transaction");
+const { Account } = require("../../models/master");
 
 // Helper functions
 // Format currency as '₹123.45'
@@ -271,7 +272,123 @@ async function generateCreditSaleReport(storeId, searchQuery = {}) {
   }
 }
 
+/**
+ * Generates a bill report for a specific customer within an optional date range.
+ * @param {String} storeId - The store ID.
+ * @param {String} customerId - The customer ID.
+ * @param {Object} searchQuery - Filter options including fromDate and toDate.
+ * @returns {Promise<Object>} - A promise that resolves to the customer bill report object.
+ */
+async function generateCustomerBillReport(
+  storeId,
+  searchQuery = {},
+  customerId
+) {
+  try {
+    // Set default dates if not provided
+    const {
+      fromDate = new Date(new Date().setMonth(new Date().getMonth() - 1))
+        .toISOString()
+        .slice(0, 10), // Default to 1 month ago
+      toDate = new Date().toISOString().slice(0, 10), // Default to today's date
+    } = searchQuery;
+
+    // Construct date range filter
+    const dateRangeFilter = {
+      dateOfInvoice: {
+        $gte: new Date(fromDate + "T00:00:00Z"),
+        $lte: new Date(toDate + "T23:59:59Z"),
+      },
+    };
+
+    // Fetch customer data
+    const customer = await Account.findById(customerId).lean();
+    if (!customer) {
+      throw new Error("Customer not found");
+    }
+
+    // Fetch all sales (normal and quick sales) for the customer within the date range
+    const [customerSales, customerQuickSales] = await Promise.all([
+      Sale.find({
+        storeId,
+        customer: customerId,
+        ...dateRangeFilter,
+      })
+        .lean()
+        .exec(),
+      QuickSale.find({
+        storeId,
+        customer: customerId,
+        ...dateRangeFilter,
+      })
+        .lean()
+        .exec(),
+    ]);
+
+    // Combine all sales
+    const allSales = [...customerSales, ...customerQuickSales];
+
+    // Initialize bills arrays
+    let cashBills = [];
+    let creditBills = [];
+    let onlineBills = [];
+
+    // Map payment types to categories
+    const paymentTypeMapping = {
+      CASH: "Cash",
+      CARD: "Online",
+      UPI: "Online",
+      CREDIT: "Credit",
+    };
+
+    // Process each sale
+    for (const sale of allSales) {
+      // Determine payment category
+      const paymentCategory = paymentTypeMapping[sale.paymentType] || "Other";
+
+      // Prepare bill object
+      const bill = {
+        bill_no: sale.billNumber,
+        date: formatDate(sale.dateOfInvoice),
+        sales_type: sale.saleType || "Local Sales",
+        reference: sale.reference || "0000000000",
+        items:
+          (sale.saleDetails ? sale.saleDetails.length : 0) +
+          (sale.quickSaleDetails ? sale.quickSaleDetails.length : 0),
+        amount: sale.totalAmount,
+      };
+
+      if (paymentCategory === "Cash") {
+        cashBills.push(bill);
+      } else if (paymentCategory === "Credit") {
+        creditBills.push(bill);
+      } else if (paymentCategory === "Online") {
+        onlineBills.push(bill);
+      }
+    }
+
+    // Prepare tabs
+    const tabs = ["Cash", "Online", "Credit"];
+
+    // Prepare the report
+    const report = {
+      customer: {
+        name: customer.name,
+        contact: customer.phone || customer.mobileNumber || "No number",
+      },
+      tabs,
+      bills: [...cashBills, ...onlineBills, ...creditBills],
+    };
+
+    return report;
+  } catch (error) {
+    console.error("Error generating customer bill report:", error);
+    throw error;
+  }
+}
+
 module.exports = {
   generateBillReport,
   generateCreditSaleReport,
+  generateCustomerBillReport,
 };
