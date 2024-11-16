@@ -273,7 +273,7 @@ async function generateCreditSaleReport(storeId, searchQuery = {}) {
 }
 
 /**
- * Generates a bill report for a specific customer within an optional date range.
+ * Generates a bill report for a specific customer with bills categorized under 'cash', 'online', and 'credit'.
  * @param {String} storeId - The store ID.
  * @param {String} customerId - The customer ID.
  * @param {Object} searchQuery - Filter options including fromDate and toDate.
@@ -328,23 +328,25 @@ async function generateCustomerBillReport(
     // Combine all sales
     const allSales = [...customerSales, ...customerQuickSales];
 
-    // Initialize bills arrays
-    let cashBills = [];
-    let creditBills = [];
-    let onlineBills = [];
+    // Initialize bills object
+    const bills = {
+      cash: [],
+      online: [],
+      credit: [],
+    };
 
     // Map payment types to categories
     const paymentTypeMapping = {
-      CASH: "Cash",
-      CARD: "Online",
-      UPI: "Online",
-      CREDIT: "Credit",
+      CASH: "cash",
+      CARD: "online",
+      UPI: "online",
+      CREDIT: "credit",
     };
 
     // Process each sale
     for (const sale of allSales) {
       // Determine payment category
-      const paymentCategory = paymentTypeMapping[sale.paymentType] || "Other";
+      const paymentCategory = paymentTypeMapping[sale.paymentType] || "other";
 
       // Prepare bill object
       const bill = {
@@ -358,17 +360,14 @@ async function generateCustomerBillReport(
         amount: sale.totalAmount,
       };
 
-      if (paymentCategory === "Cash") {
-        cashBills.push(bill);
-      } else if (paymentCategory === "Credit") {
-        creditBills.push(bill);
-      } else if (paymentCategory === "Online") {
-        onlineBills.push(bill);
+      if (paymentCategory === "cash") {
+        bills.cash.push(bill);
+      } else if (paymentCategory === "credit") {
+        bills.credit.push(bill);
+      } else if (paymentCategory === "online") {
+        bills.online.push(bill);
       }
     }
-
-    // Prepare tabs
-    const tabs = ["Cash", "Online", "Credit"];
 
     // Prepare the report
     const report = {
@@ -376,8 +375,7 @@ async function generateCustomerBillReport(
         name: customer.name,
         contact: customer.phone || customer.mobileNumber || "No number",
       },
-      tabs,
-      bills: [...cashBills, ...onlineBills, ...creditBills],
+      bills,
     };
 
     return report;
