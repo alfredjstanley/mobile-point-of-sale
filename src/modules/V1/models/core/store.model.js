@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const wacRefSchema = require("../services/wacMerchant.model");
 
 const storeSchema = new mongoose.Schema(
   {
@@ -83,6 +84,11 @@ const storeSchema = new mongoose.Schema(
     },
     aboutStore: { type: String, default: null },
     createdAt: { type: Date, default: Date.now },
+    existsInWac: { type: Boolean, default: false },
+    wacRef: {
+      type: wacRefSchema,
+      default: null,
+    },
   },
   {
     versionKey: false,

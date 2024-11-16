@@ -8,6 +8,8 @@ const { AuthUser, Store, UserProfile } = require("../../models/core");
 const { getNextSequence } = require("../../../../utils/counter.utils");
 const generateToken = require("../../../../helpers/generateToken.helper");
 
+const wacApiService = require("../thirdPartyAPI/wacApi.service");
+
 const authService = {
   /**
    *
@@ -81,8 +83,28 @@ const authService = {
       if (extUser)
         throw new Error("Merchant already exists with this phone number.");
 
-      const storeNumber = await getNextSequence("storeNumber", session);
-      const newStore = new Store({ storeNumber, status: "ACTIVE" });
+      const storeData = {
+        status: "ACTIVE",
+      };
+
+      storeData.storeNumber = await getNextSequence("storeNumber", session);
+
+      // check if store exists in WebPOS server
+      const wacLogin = await wacApiService.login();
+      const wacToken = wacLogin.data.token;
+
+      // check user exists in WAC by geting user by phone number
+      const wacData = await wacApiService.getMerchantDetails(
+        phoneNumber.slice(-10),
+        wacToken
+      );
+
+      if (wacData.isMerchantExists) {
+        storeData.existsInWac = true;
+        storeData.wacRef = wacData.data.data;
+      }
+
+      const newStore = new Store(storeData);
       const store = await newStore.save({ session });
 
       const localAccount = new Account({
