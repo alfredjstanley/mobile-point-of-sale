@@ -89,7 +89,7 @@ const authService = {
 
       storeData.storeNumber = await getNextSequence("storeNumber", session);
 
-      // check if store exists in WebPOS server
+      // check if store exists in WebAndCraft server
       const wacLogin = await wacApiService.login();
       const wacToken = wacLogin.data.token;
 

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+const wacRefSchema = require("../services/wacUser.model");
 const { Sale, CreditPayment } = require("../../models/transaction");
 
 const accountSchema = new mongoose.Schema(
@@ -63,6 +64,11 @@ const accountSchema = new mongoose.Schema(
       type: String,
       default: "ACTIVE",
       enum: ["ACTIVE", "INACTIVE"],
+    },
+    existsInWac: { type: Boolean, default: false },
+    wacRef: {
+      type: wacRefSchema,
+      default: null,
     },
   },
   {

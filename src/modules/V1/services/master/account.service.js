@@ -1,4 +1,5 @@
 const { Account } = require("../../models/master");
+const wacApiService = require("../thirdPartyAPI/wacApi.service");
 
 class AccountService {
   /**
@@ -7,7 +8,24 @@ class AccountService {
    * @returns {Promise<Object>} - The created account.
    */
   async createAccount(data) {
-    const account = new Account(data);
+    const accountData = { ...data };
+
+    // check if customer exists in WAC
+    const wacLogin = await wacApiService.login();
+    const wacToken = wacLogin.data.token;
+
+    const customerMobileNumber = accountData.phone;
+    const numberwithoutCountryCode = customerMobileNumber.slice(-10);
+    const wacCustomer = await wacApiService.getCustomerDetails(
+      numberwithoutCountryCode,
+      wacToken
+    );
+    if (wacCustomer.data) {
+      accountData.existsInWac = true;
+      accountData.wacRef = wacCustomer.data.data;
+    }
+
+    const account = new Account(accountData);
     await account.save();
 
     return {
