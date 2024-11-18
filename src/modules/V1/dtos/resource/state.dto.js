@@ -30,7 +30,7 @@ class StateDTO {
    * @param {number} state.area - The area of the state.
    */
   constructor(state) {
-    this.id = state._id;
+    this._id = state._id;
     this.name = state.name;
     this.code = state.code;
     this.capital = state.capital;

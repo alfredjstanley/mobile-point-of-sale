@@ -30,7 +30,7 @@ class DistrictDTO {
    * @param {number} district.area - The area of the district.
    */
   constructor(district) {
-    this.id = district._id;
+    this._id = district.id;
     this.name = district.name;
     this.code = district.code;
     // this.stateCode = district.stateCode;
