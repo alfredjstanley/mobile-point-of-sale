@@ -350,6 +350,7 @@ async function generateCustomerBillReport(
 
       // Prepare bill object
       const bill = {
+        id: sale._id,
         bill_no: sale.billNumber,
         date: formatDate(sale.dateOfInvoice),
         sales_type: sale.saleType || "Local Sales",
