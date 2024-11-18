@@ -273,7 +273,7 @@ async function generateCreditSaleReport(storeId, searchQuery = {}) {
 }
 
 /**
- * Generates a bill report for a specific customer with bills categorized under 'cash', 'online', and 'credit'.
+ * Generates a bill report for a specific customer within an optional date range.
  * @param {String} storeId - The store ID.
  * @param {String} customerId - The customer ID.
  * @param {Object} searchQuery - Filter options including fromDate and toDate.
@@ -369,12 +369,20 @@ async function generateCustomerBillReport(
       }
     }
 
+    // Prepare tabs with counts
+    const tabs = [
+      `Cash (${bills.cash.length})`,
+      `Online (${bills.online.length})`,
+      `Credit (${bills.credit.length})`,
+    ];
+
     // Prepare the report
     const report = {
       customer: {
         name: customer.name,
         contact: customer.phone || customer.mobileNumber || "No number",
       },
+      tabs,
       bills,
     };
 
