@@ -1,5 +1,10 @@
 const { saleService } = require("../../services/transaction");
 const { responseHandler } = require("../../../../handlers");
+const { storeService } = require("../../services/core");
+
+const {
+  reflectUserMerchantPointsInWac,
+} = require("../../services/thirdPartyAPI");
 
 class SaleController {
   async createSale(req, res, next) {
@@ -7,9 +12,17 @@ class SaleController {
       const { storeId, userId, storeNumber } = req.identifier;
       const data = { ...req.body, storeId, storeNumber, createdBy: userId };
 
-      const sale = await saleService.createSale(data);
+      const [sale, store] = await Promise.all([
+        saleService.createSale(data),
+        storeService.getStoreById(storeId),
+      ]);
 
-      responseHandler.sendCreatedResponse(res, sale);
+      if (store.existsInWac) {
+        // Reflect user merchant points in WAC
+        reflectUserMerchantPointsInWac(store, sale);
+      }
+
+      responseHandler.sendCreatedResponse(res, sale.data);
     } catch (error) {
       next(error);
     }

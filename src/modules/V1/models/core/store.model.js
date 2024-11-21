@@ -16,10 +16,6 @@ const storeSchema = new mongoose.Schema(
     },
     phoneNumber: {
       type: String,
-      match: [
-        /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/,
-        "Please enter a valid phone number.",
-      ],
       default: null,
     },
     merchantName: {

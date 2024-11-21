@@ -22,11 +22,23 @@ class SaleService {
   async createSale(data) {
     const session = await mongoose.startSession();
 
+    const responseData = {};
+
     try {
       await session.withTransaction(async () => {
         // **Generate a unique bill number**
         const billNumberType = `${SALES_INVOICE_PREFIX}-${data.storeId}`;
-        let billNumber = await getNextSequence(billNumberType, session);
+
+        let [billNumber, customer] = await Promise.all([
+          getNextSequence(billNumberType, session),
+          Account.findById(data.customer).session(session),
+        ]);
+
+        if (!customer) throw new Error("Invalid customer ID");
+
+        responseData.customerNumber = customer.phone;
+        responseData.totalAmount = data.totalAmount;
+        responseData.paymentType = data.paymentType;
 
         // Format bill number to 4 digits and storenumber to 2 digits
         billNumber = billNumber.toString().padStart(4, "0");
@@ -50,9 +62,6 @@ class SaleService {
         } else data.saleType = saleType;
 
         // **Start transaction logic**
-
-        const customer = await Account.findById(data.customer).session(session);
-        if (!customer) throw new Error("Invalid customer ID");
 
         // Prevent creating credit sale for [Local Sales]
         if (
@@ -84,12 +93,15 @@ class SaleService {
             product.stockQuantity -= detail.quantity;
             await product.save({ session });
 
-            const tax = await Tax.findById(detail.tax).session(session);
+            const [tax, unit] = await Promise.all([
+              Tax.findById(detail.tax).session(session),
+              Unit.findById(detail.unit).session(session),
+            ]);
+
             if (!tax) {
               throw new Error(`Tax with ID ${detail.tax} not found`);
             }
 
-            const unit = await Unit.findById(detail.unit).session(session);
             if (!unit) {
               throw new Error(`Unit with ID ${detail.unit} not found`);
             }
@@ -163,10 +175,11 @@ class SaleService {
         // **End of transaction logic**
       });
       session.endSession();
-      return {
+      responseData.data = {
         message: "Sale created successfully",
         billNumber: data.billNumber,
       };
+      return responseData;
     } catch (error) {
       throw error;
     } finally {

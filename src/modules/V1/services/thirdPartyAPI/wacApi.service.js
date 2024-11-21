@@ -1,5 +1,4 @@
 const axios = require("axios");
-
 const config = require("../../../../configs/env.config/service.env");
 
 const { wac } = config; // WebAndCraft API configuration
@@ -66,6 +65,7 @@ const registerOfflinePayment = async (paymentDetails, token) => {
     const response = await apiClient.post(
       wac.routes.complete_offline_payment,
       paymentDetails,
+
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -74,7 +74,53 @@ const registerOfflinePayment = async (paymentDetails, token) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error registering offline payment:", error.message);
+    console.error("Error registering offline payment:", error);
+    throw error;
+  }
+};
+
+// Function to handle post-sales points update
+const reflectUserMerchantPoints = async (
+  userMobileNumber,
+  merchantMobileNumber,
+  paymentDetails
+) => {
+  try {
+    // Log in to get the token
+    const loginResponse = await login();
+    const token = loginResponse.token; // Adjust based on actual response structure
+
+    // Concurrently fetch customer and merchant details
+    const [customerResult, merchantResult] = await Promise.all([
+      getCustomerDetails(userMobileNumber, token),
+      getMerchantDetails(merchantMobileNumber, token),
+    ]);
+
+    // Check if both customer and merchant exist
+    if (!customerResult.isUserExists || !merchantResult.isMerchantExists) {
+      throw new Error("Customer or Merchant does not exist.");
+    }
+
+    // Update payment details with retrieved data if needed
+    const updatedPaymentDetails = {
+      ...paymentDetails,
+      user_mobile_number: userMobileNumber,
+      merchant_mobile_number: merchantMobileNumber,
+    };
+
+    // Register the offline payment
+    const paymentResponse = await registerOfflinePayment(
+      updatedPaymentDetails,
+      token
+    );
+
+    console.log("Offline payment registered successfully:", paymentResponse);
+    return paymentResponse;
+  } catch (error) {
+    console.error(
+      "Error in updating user points after post-sales:",
+      error.message
+    );
     throw error;
   }
 };
@@ -84,4 +130,5 @@ module.exports = {
   getCustomerDetails,
   getMerchantDetails,
   registerOfflinePayment,
+  reflectUserMerchantPoints,
 };
