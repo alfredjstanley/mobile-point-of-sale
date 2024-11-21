@@ -54,10 +54,14 @@ class AuthDTO {
    * @param {string} data.message - Message from the auth response.
    * @param {Object} data.merchant - Raw merchant data.
    * @param {string} data.accessToken - Access token.
+   * @param {string} data.isMerchantExists - Access token.
+   *
    */
   constructor(data) {
     this.message = data.message;
     this.accessToken = data.accessToken;
+    this.isMerchantExists = data.isMerchantExists;
+    this.userType = data.merchant.role;
   }
 }
 

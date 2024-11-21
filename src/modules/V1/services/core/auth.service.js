@@ -146,6 +146,7 @@ const authService = {
 
       return {
         message: "Merchant registered successfully",
+        isMerchantExists: storeData.existsInWac? true : false,
         accessToken: token,
         merchant,
       };
