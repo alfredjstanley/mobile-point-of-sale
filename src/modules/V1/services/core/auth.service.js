@@ -173,15 +173,23 @@ const authService = {
   },
 
   async verifyUser({ phoneNumber }) {
-    const merchant = await AuthUser.findOne({
+    const user = await AuthUser.findOne({
       phoneNumber,
       status: "ACTIVE",
     }).populate("userProfile");
-    if (!merchant) throw new Error("Merchant not found");
+
+    if (!user) throw new Error("Merchant not found");
+    let userName = user.userProfile.name;
+    if (userName === null) {
+      userName = await Store.findOne({ _id: user.storeId })
+        .select("merchantName")
+        .lean();
+    }
+    userName = userName.merchantName;
 
     return {
       message: "Merchant exists",
-      name: merchant.userProfile.name,
+      name: userName,
     };
   },
 
