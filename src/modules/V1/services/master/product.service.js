@@ -1,3 +1,4 @@
+const { Sale } = require("../../models/transaction");
 const { Product } = require("../../models/master");
 const { Tax } = require("../../models/resource");
 
@@ -25,9 +26,9 @@ class ProductService {
   }
 
   async getProductsByCategory(categoryId) {
-    return await Product.find({ category: categoryId }).lean().populate(
-      "category unit tax"
-    );
+    return await Product.find({ category: categoryId, status: "ACTIVE" })
+      .lean()
+      .populate("category unit tax");
   }
 
   async updateProduct(id, data) {
@@ -39,6 +40,16 @@ class ProductService {
   }
 
   async deleteProduct(id) {
+    // Check if any sale is associated with the product
+    const isSaleExists = await Sale.exists({
+      "saleDetails.item": id,
+    });
+
+    if (isSaleExists) {
+      return {
+        message: "Product cannot be deleted as it is associated with a sale",
+      };
+    }
     await Product.findByIdAndUpdate(id, {
       status: "INACTIVE",
     });
