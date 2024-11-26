@@ -1,6 +1,7 @@
 const {
   Sale,
   QuickSale,
+  CreditPayment,
   StockTransaction,
   AccountTransaction,
 } = require("../../models/transaction");
@@ -18,9 +19,29 @@ async function calculateSalesReturn(storeId) {
  * Placeholder function to calculate received amount on credits for the store.
  * Implement this function based on your data model for payments received.
  */
-async function calculateReceivedAmount(storeId) {
-  // TODO: Implement actual logic to calculate received amounts on credits
-  return 0;
+async function calculateReceivedAmount(storeId, fromDate, toDate) {
+  // Fetch total received amount on credits within the date range
+  const receivedPayments = await CreditPayment.aggregate([
+    {
+      $match: {
+        storeId,
+        date: {
+          $gte: new Date(fromDate + "T00:00:00Z"),
+          $lt: new Date(toDate + "T23:59:59Z"),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalReceived: { $sum: "$amount" },
+      },
+    },
+  ]);
+
+  const totalReceived = receivedPayments[0]?.totalReceived || 0;
+
+  return totalReceived;
 }
 
 /**
@@ -99,8 +120,11 @@ async function generateSaleReport(storeId, searchQuery = {}) {
 
     // Total Credit and Received Amount on Credits
     const totalCredit = netSaleBreakdown["Credit"];
-    const receivedAmount = await calculateReceivedAmount(storeId);
-
+    const receivedAmount = await calculateReceivedAmount(
+      storeId,
+      fromDate,
+      toDate
+    );
     // Prepare the report
     const report = {
       numberOfBills: allSales.length,
