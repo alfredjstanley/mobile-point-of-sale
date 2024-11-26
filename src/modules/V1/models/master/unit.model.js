@@ -40,7 +40,7 @@ const Unit = mongoose.model("Unit", unitSchema);
     const count = await Unit.countDocuments({});
     if (count === 0) {
       await Unit.insertMany(initialunits);
-      console.log("Initial 'Units' data migrated");
+      console.info("Initial 'Units' data migrated");
     }
   } catch (error) {
     console.error("Error inserting initial units:", error);

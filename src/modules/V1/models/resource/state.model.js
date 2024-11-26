@@ -41,7 +41,7 @@ const State = mongoose.model("State", stateSchema);
     const count = await State.countDocuments({});
     if (count === 0) {
       await State.insertMany(initialStates);
-      console.log("Initial 'States' data migrated");
+      console.info("Initial 'States' data migrated");
     }
   } catch (error) {
     console.error("Error inserting initial states:", error);

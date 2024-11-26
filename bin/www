@@ -15,20 +15,20 @@ const port = normalizePort(app_port || "8000");
 let server;
 
 async function runStart() {
-  console.log("--".repeat(22));
+  console.info("--".repeat(22));
   console.time("⏳ Server started in");
   console.info("🚀 Starting server...");
 
   await connectDatabase();
   await initServer();
   console.timeEnd("⏳ Server started in");
-  console.log("🕒 Initiated at", new Date().toLocaleString());
+  console.info("🕒 Initiated at", new Date().toLocaleString());
 }
 
 async function connectDatabase() {
   try {
     await db.establishConnection();
-    console.log("✅ Database connected successfully\n");
+    console.info("✅ Database connected successfully\n");
   } catch (error) {
     console.error("❌ Failed to connect to the database:", error);
     process.exit(1);
@@ -38,8 +38,8 @@ async function connectDatabase() {
 async function initServer() {
   server = http.createServer(app);
   server.listen(port, () => {
-    console.log(`🌐 Listening on: http://localhost:${port}/api`);
-    console.log("--".repeat(22), "\n");
+    console.info(`🌐 Listening on: http://localhost:${port}/api`);
+    console.info("--".repeat(22), "\n");
   });
   server.on("error", onError);
 }
@@ -78,7 +78,7 @@ function onError(error) {
 
 async function shutdown(info) {
   console.info(info);
-  console.log("🛑 Gracefully shutting down...\n");
+  console.info("🛑 Gracefully shutting down...\n");
   if (server) await server.close();
   process.exit(0); // Clean exit.
 }

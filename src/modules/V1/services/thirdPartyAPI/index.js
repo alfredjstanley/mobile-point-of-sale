@@ -37,8 +37,6 @@ const reflectUserMerchantPointsInWac = async (store, payload) => {
     // 2. Call the offline payment API
     const paymentResponse = await registerOfflinePayment(paymentDetails, token);
 
-    console.log(`paymentResponse knri `, paymentResponse);
-
     // 3. Save log entry
     logEntry = new Log({
       userMobileNumber,
@@ -48,8 +46,6 @@ const reflectUserMerchantPointsInWac = async (store, payload) => {
       response: paymentResponse,
     });
     await logEntry.save();
-
-    console.log("Log entry created successfully:", logEntry);
 
     // 4. Fetch updated user and merchant details
     const [customerResult, merchantResult] = await Promise.all([
@@ -64,7 +60,6 @@ const reflectUserMerchantPointsInWac = async (store, payload) => {
         { details: customerResult.data },
         { upsert: true, new: true }
       );
-      console.log("User details updated successfully.");
     }
 
     if (merchantResult.isMerchantExists) {
@@ -74,7 +69,6 @@ const reflectUserMerchantPointsInWac = async (store, payload) => {
         { details: merchantResult.data },
         { upsert: true, new: true }
       );
-      console.log("Merchant details updated successfully.");
     }
   } catch (error) {
     console.error("Error in offline payment flow:", error);

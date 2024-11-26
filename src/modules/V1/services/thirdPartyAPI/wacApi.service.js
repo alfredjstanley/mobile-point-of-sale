@@ -114,7 +114,6 @@ const reflectUserMerchantPoints = async (
       token
     );
 
-    console.log("Offline payment registered successfully:", paymentResponse);
     return paymentResponse;
   } catch (error) {
     console.error(

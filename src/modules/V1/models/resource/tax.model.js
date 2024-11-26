@@ -31,7 +31,7 @@ const Tax = mongoose.model("Tax", taxSchema);
     const count = await Tax.countDocuments({});
     if (count === 0) {
       await Tax.insertMany(initialTaxes);
-      console.log("Initial 'Taxes' data migrated");
+      console.info("Initial 'Taxes' data migrated");
     }
   } catch (error) {
     console.error("Error inserting initial taxes:", error);

@@ -33,7 +33,7 @@ const District = mongoose.model("District", districtSchema);
     const count = await District.countDocuments({});
     if (count === 0) {
       await District.insertMany(initialdistricts);
-      console.log("Initial 'Districts' data migrated");
+      console.info("Initial 'Districts' data migrated");
     }
   } catch (error) {
     console.error("Error inserting initial districts:", error);

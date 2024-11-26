@@ -31,7 +31,7 @@ const StoreType = mongoose.model("StoreType", StoreTypeSchema);
     const count = await StoreType.countDocuments({});
     if (count === 0) {
       await StoreType.insertMany(initialStoreTypes);
-      console.log("Initial 'StoreTypes' data migrated");
+      console.info("Initial 'StoreTypes' data migrated");
     }
   } catch (error) {
     console.error("Error inserting initial 'StoreType':", error);

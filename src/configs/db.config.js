@@ -26,7 +26,7 @@ async function retryConnection(attempt) {
     return gracefulShutdown(new Error("Max connection retries reached."));
 
   const sleepTime = getRetrySleepTime(attempt);
-  console.log(`Retrying in ${sleepTime / 1000} seconds...`);
+  console.info(`Retrying in ${sleepTime / 1000} seconds...`);
 
   setTimeout(() => establishConnection(attempt + 1), sleepTime);
 }
@@ -72,7 +72,7 @@ function gracefulShutdown(err) {
   mongoose.connection
     .close()
     .then(() => {
-      console.log("🔔 DB connection closed due to app termination.", "\n");
+      console.info("🔔 DB connection closed due to app termination.", "\n");
       process.exit(1);
     })
     .catch((error) => {
@@ -83,10 +83,10 @@ function gracefulShutdown(err) {
 
 // Shutdown process for signals
 async function handleShutdown(signal) {
-  console.log("⚠️ ", `Received ${signal}. Closing DB connection...`);
+  console.info("⚠️ ", `Received ${signal}. Closing DB connection...`);
   try {
     await mongoose.connection.close();
-    console.log("🔔 DB Connection closed due to app termination.", "\n");
+    console.info("🔔 DB Connection closed due to app termination.", "\n");
     process.exit(0); // Clean exit
   } catch (error) {
     console.error("Error while closing MongoDB connection:", error);
