@@ -20,7 +20,7 @@ const authService = {
    * storeNumber: number
    * }
    */
-  async getUserStoreIds(secretOrKey) {
+  async retrieveUserByKey(secretOrKey) {
     const user = await AuthUser.findOne({
       secretOrKey,
       status: "ACTIVE",
@@ -30,18 +30,17 @@ const authService = {
 
     return {
       userId: user._id,
+      userRole: user.role,
       storeId: user.storeId._id,
+      userProfileId: user.userProfile,
       storeNumber: user.storeId.storeNumber,
     };
   },
 
-  async getUserProfile(secretOrKey) {
-    const user = await AuthUser.findOne({ secretOrKey }).populate(
-      "userProfile"
-    );
-    if (!user) throw new Error("User not found");
-
-    return { userProfile: user.userProfile };
+  async getUserProfile(userId) {
+    const userProfile = await UserProfile.findById(userId);
+    if (!userProfile) throw new Error("User profile not found");
+    return userProfile;
   },
 
   /**
@@ -146,7 +145,7 @@ const authService = {
 
       return {
         message: "Merchant registered successfully",
-        isMerchantExists: storeData.existsInWac? true : false,
+        isMerchantExists: storeData.existsInWac ? true : false,
         accessToken: token,
         merchant,
       };

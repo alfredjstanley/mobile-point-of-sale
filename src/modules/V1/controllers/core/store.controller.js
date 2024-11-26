@@ -1,4 +1,4 @@
-const { storeService } = require("../../services/core");
+const { storeService, authService } = require("../../services/core");
 const { responseHandler } = require("../../../../handlers");
 
 /**
@@ -8,12 +8,20 @@ const { responseHandler } = require("../../../../handlers");
  */
 const getStoreDetails = async (req, res) => {
   try {
-    const { storeId } = req.identifier;
+    const { storeId, userRole, userProfileId } = req.identifier;
 
-    const storeData = await storeService.getStoreById(storeId);
-    if (!storeData) return res.status(404).json({ error: "Store not found" });
+    const [storeData, userProfile] = await Promise.all([
+      storeService.getStoreById(storeId),
+      authService.getUserProfile(userProfileId),
+    ]);
 
-    responseHandler.sendSuccessResponse(res, storeData);
+    const responseData = {
+      storeData,
+      userProfile,
+      userRole,
+    };
+
+    responseHandler.sendSuccessResponse(res, responseData);
   } catch (error) {
     responseHandler.sendFailureResponse(res, error.message);
   }

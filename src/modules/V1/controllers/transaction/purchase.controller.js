@@ -1,14 +1,13 @@
 const { purchaseService } = require("../../services/transaction");
 const { responseHandler } = require("../../../../handlers");
 
-const { getStoreId, getUserStoreIds } =
-  require("../../services/core").authService;
+const { getStoreId, retrieveUserByKey } = require("../../services/core").authService;
 
 class PurchaseController {
   async createPurchase(req, res, next) {
     try {
       const data = req.body;
-      const { storeId, userId } = await getUserStoreIds(req.identifier);
+      const { storeId, userId } = await retrieveUserByKey(req.identifier);
 
       data.storeId = storeId;
       data.createdBy = userId;

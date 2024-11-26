@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { app_key } = require("../configs/env.config/app.env");
-const { getUserStoreIds } = require("../modules/V1/services/core/auth.service");
+const { retrieveUserByKey } = require("../modules/V1/services/core/auth.service");
 
 async function verifyUser(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -18,7 +18,7 @@ async function verifyUser(req, res, next) {
        * @param {string} decoded.identifier
        * @returns {object} { userId, storeId, storeNumber }
        */
-      req.identifier = await getUserStoreIds(decoded.identifier);
+      req.identifier = await retrieveUserByKey(decoded.identifier);
       next();
     } catch (err) {
       return res.status(500).json({ message: err.message });
