@@ -1,4 +1,4 @@
-const { Category } = require("../../models/master");
+const { Category, Product } = require("../../models/master");
 
 class CategoryService {
   async createCategory(data) {
@@ -52,6 +52,18 @@ class CategoryService {
   }
 
   async deleteCategory(id) {
+    const isProductExists = await Product.exists({
+      category: id,
+      status: "ACTIVE",
+    });
+
+    if (isProductExists) {
+      return {
+        message:
+          "Category cannot be deleted as it is associated with a product",
+      };
+    }
+
     await Category.findByIdAndUpdate(id, {
       status: "INACTIVE",
     });
