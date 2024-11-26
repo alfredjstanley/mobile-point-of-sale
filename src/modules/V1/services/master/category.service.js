@@ -27,7 +27,10 @@ class CategoryService {
           localField: "_id",
           foreignField: "category",
           as: "products",
-          pipeline: [{ $project: { _id: 1 } }],
+          pipeline: [
+            { $match: { status: "ACTIVE" } },
+            { $project: { _id: 1 } },
+          ],
         },
       },
       {
