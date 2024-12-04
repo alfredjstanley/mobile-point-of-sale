@@ -55,6 +55,7 @@ class CategoryService {
   }
 
   async deleteCategory(id) {
+    // Check if there are active products associated with the category
     const isProductExists = await Product.exists({
       category: id,
       status: "ACTIVE",
@@ -67,9 +68,13 @@ class CategoryService {
       };
     }
 
-    await Category.findByIdAndUpdate(id, {
-      status: "INACTIVE",
-    });
+    const deletedCategory = await Category.findByIdAndDelete(id);
+
+    if (!deletedCategory) {
+      return {
+        message: "Category not found or already deleted",
+      };
+    }
 
     return {
       message: "Category deleted successfully",
