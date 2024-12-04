@@ -181,11 +181,11 @@ const authService = {
     if (!user) throw new Error("Merchant not found");
     let userName = user.userProfile.name;
     if (userName === null) {
-      userName = await Store.findOne({ _id: user.storeId })
+      const userStore = await Store.findOne({ _id: user.storeId })
         .select("merchantName")
         .lean();
+      userName = userStore.merchantName;
     }
-    userName = userName.merchantName;
 
     return {
       message: "Merchant exists",
