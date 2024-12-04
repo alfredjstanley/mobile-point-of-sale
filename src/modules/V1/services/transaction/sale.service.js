@@ -36,6 +36,16 @@ class SaleService {
 
         if (!customer) throw new Error("Invalid customer ID");
 
+        // Check if the customer can make a credit purchase
+        if (
+          data.paymentType === "CREDIT" &&
+          !customer.canMakeCreditPurchase(data.totalAmount)
+        ) {
+          throw new Error(
+            `Credit limit exceeded. Customer cannot make purchases exceeding their credit limit of ${customer.creditLimit}.`
+          );
+        }
+
         responseData.customerNumber = customer.phone;
         responseData.totalAmount = data.totalAmount;
         responseData.paymentType = data.paymentType;
