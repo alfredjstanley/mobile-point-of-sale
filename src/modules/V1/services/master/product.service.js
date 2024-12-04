@@ -50,9 +50,14 @@ class ProductService {
         message: "Product cannot be deleted as it is associated with a sale",
       };
     }
-    await Product.findByIdAndUpdate(id, {
-      status: "INACTIVE",
-    });
+
+    const deletedProduct = await Product.findByIdAndDelete(id);
+
+    if (!deletedProduct) {
+      return {
+        message: "Product not found or already deleted",
+      };
+    }
 
     return {
       message: "Product deleted successfully",
