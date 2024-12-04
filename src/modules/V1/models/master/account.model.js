@@ -79,7 +79,7 @@ const accountSchema = new mongoose.Schema(
 
 accountSchema.index({ phone: 1, storeId: 1 }, { unique: true });
 
-// Methods to update the balance
+// Schema Methods
 accountSchema.methods.updateBalance = async function () {
   const sales = await Sale.aggregate([
     { $match: { customer: this._id, paymentType: "CREDIT" } },
@@ -96,6 +96,11 @@ accountSchema.methods.updateBalance = async function () {
 
   this.balance = totalCredit - totalPaid;
   await this.save();
+};
+
+accountSchema.methods.canMakeCreditPurchase = function (purchaseAmount) {
+  const newBalance = this.balance + purchaseAmount;
+  return newBalance <= this.creditLimit;
 };
 
 module.exports = mongoose.model("Account", accountSchema);
